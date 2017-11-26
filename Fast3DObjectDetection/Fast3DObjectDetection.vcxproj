@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="constants.h" />
     <ClInclude Include="DetectionUnit.h" />
     <ClInclude Include="distAndOri.h" />
     <ClInclude Include="HashSettings.h" />
@@ -131,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="distAndOri.cpp" />
     <ClCompile Include="Fast3DObjectDetection.cpp" />
+    <ClCompile Include="sparseDescriptor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

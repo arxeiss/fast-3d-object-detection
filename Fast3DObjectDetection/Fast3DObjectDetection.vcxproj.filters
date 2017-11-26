@@ -51,12 +51,18 @@
     <ClInclude Include="distAndOri.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fast3DObjectDetection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="distAndOri.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sparseDescriptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
