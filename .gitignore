@@ -33,4 +33,5 @@ Fast3DObjectDetection/images/*
 *.opendb
 *.tlog
 *.log
+*.bin
 **/x64/*

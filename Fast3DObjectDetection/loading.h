@@ -17,3 +17,5 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 	int templatesLoaded, float *minD = NULL, float *maxD = NULL, float *minPhi = NULL, float *maxPhi = NULL);
 
 HashSettings fillHashTable(TemplateHashTable &hashTable, FolderTemplateList &templates, int templatesLoaded, std::vector<Triplet> &triplets, int dBins, int phiBins);
+
+void savePreparedData(FolderTemplateList &templates, std::vector<Triplet> &triplets, std::string fileName);

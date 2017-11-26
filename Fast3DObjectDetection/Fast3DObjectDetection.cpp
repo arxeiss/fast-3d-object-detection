@@ -111,6 +111,11 @@ int main()
 	elapsedTime.insertBreakpoint("filterEdges");
 	std::printf("Edges filtered in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("hashTable"), elapsedTime.getTimeFromBeginning());
 
+	savePreparedData(templates, triplets, "preparedData.bin");
+
+	elapsedTime.insertBreakpoint("fileSaving");
+	std::printf("File saved in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("filterEdges"), elapsedTime.getTimeFromBeginning());
+	
 	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
 	
 	std::getc(stdin);

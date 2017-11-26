@@ -2,6 +2,7 @@
 
 #include "distanceAndOrientation.h"
 #include "TimeMeasuring.h"
+#include <fstream>
 
 // detect edges, distance transform, count edges
 void prepareDetectionUnit(DetectionUnit &dt, bool renewEdges, bool renewDistTransform, bool recountEdges) {
@@ -210,4 +211,40 @@ HashSettings fillHashTable(TemplateHashTable &hashTable, FolderTemplateList &tem
 	std::printf("\n");
 
 	return hashSettings;
+}
+
+void savePreparedData(FolderTemplateList &templates, std::vector<Triplet> &triplets, std::string fileName) {
+	std::ofstream ofs(fileName, std::ios::binary);
+	int folders = templates.size(),
+		templatesPerFolder = templates[0].size();
+	ofs.write((const char*)(&folders), sizeof(int));
+	ofs.write((const char*)(&templatesPerFolder), sizeof(int));
+
+	for (int f = 0; f < folders; f++)
+	{
+		for (int t = 0; t < templatesPerFolder; t++)
+		{
+			cv::Mat *mat = &(templates[f][t].img_8u);
+			int type = mat->type();
+			ofs.write((const char*)(&mat->rows), sizeof(int));
+			ofs.write((const char*)(&mat->cols), sizeof(int));
+			ofs.write((const char*)(&type), sizeof(int));
+			ofs.write((const char*)(mat->data), mat->elemSize() * mat->total());
+		}
+	}
+
+	for (int f = 0; f < folders; f++)
+	{
+		for (int t = 0; t < templatesPerFolder; t++)
+		{
+			cv::Mat *mat = &(templates[f][t].edges_8u);
+			int type = mat->type();
+			ofs.write((const char*)(&mat->rows), sizeof(int));
+			ofs.write((const char*)(&mat->cols), sizeof(int));
+			ofs.write((const char*)(&type), sizeof(int));
+			ofs.write((const char*)(mat->data), mat->elemSize() * mat->total());
+		}
+	}
+
+	ofs.close();
 }
