@@ -1,4 +1,7 @@
 #pragma once
+
+#include <opencv2/opencv.hpp>
+
 class QuantizedTripletValues
 {
 public:
@@ -43,7 +46,7 @@ namespace std {
 	};
 }
 
-QuantizedTripletValues unhash(std::size_t hashedValue) {
+inline QuantizedTripletValues unhash(std::size_t hashedValue) {
 	QuantizedTripletValues qtz(
 		hashedValue >> 18,
 		(hashedValue >> 15) & 0b111,

@@ -115,10 +115,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="constants.h" />
+    <ClInclude Include="chamferScore.h" />
+    <ClInclude Include="constantsAndTypes.h" />
     <ClInclude Include="DetectionUnit.h" />
-    <ClInclude Include="distAndOri.h" />
+    <ClInclude Include="distanceAndOrientation.h" />
+    <ClInclude Include="edgeProcessing.h" />
     <ClInclude Include="HashSettings.h" />
+    <ClInclude Include="loading.h" />
     <ClInclude Include="sparseDescriptor.h" />
     <ClInclude Include="QuantizedTripletValues.h" />
     <ClInclude Include="TemplateChamferScore.h" />
@@ -130,8 +133,11 @@
     <ClInclude Include="visualize.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="distAndOri.cpp" />
+    <ClCompile Include="chamferScore.cpp" />
+    <ClCompile Include="distanceAndOrientation.cpp" />
+    <ClCompile Include="edgeProcessing.cpp" />
     <ClCompile Include="Fast3DObjectDetection.cpp" />
+    <ClCompile Include="loading.cpp" />
     <ClCompile Include="sparseDescriptor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

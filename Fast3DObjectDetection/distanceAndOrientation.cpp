@@ -1,5 +1,5 @@
-#include "constants.h"
-#include "distAndOri.h"
+#include "constantsAndTypes.h"
+#include "distanceAndOrientation.h"
 
 #include <iomanip>
 

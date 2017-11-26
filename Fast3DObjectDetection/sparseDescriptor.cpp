@@ -1,5 +1,5 @@
 #include "sparseDescriptor.h"
-#include "distAndOri.h"
+#include "distanceAndOrientation.h"
 
 std::vector<float> getImgVector(cv::Mat img_32f, int step, int margin, int startX, int startY, int width, int height) {
 	if (width < 0) {

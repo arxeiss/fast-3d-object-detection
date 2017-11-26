@@ -48,10 +48,19 @@
     <ClInclude Include="sparseDescriptor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="distAndOri.h">
+    <ClInclude Include="distanceAndOrientation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="constants.h">
+    <ClInclude Include="loading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="constantsAndTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="edgeProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="chamferScore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,10 +68,19 @@
     <ClCompile Include="Fast3DObjectDetection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="distAndOri.cpp">
+    <ClCompile Include="sparseDescriptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sparseDescriptor.cpp">
+    <ClCompile Include="distanceAndOrientation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="loading.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="edgeProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="chamferScore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
