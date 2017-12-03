@@ -1,10 +1,16 @@
 #pragma once
+
+#include <vector>
+
 class HashSettings
 {
 public:
 	float minD, maxD, minPhi, maxPhi;
 	int dBins, phiBins;
 	float dNormDivider, phiNormDivider;
+	std::vector<float> dBinsRange;
+
+	HashSettings() {}
 
 	HashSettings(float minD, float maxD, float minPhi, float maxPhi, int dBins, int phiBins) {
 		this->minD = minD;
@@ -20,7 +26,19 @@ public:
 	}
 
 	int getDistanceBin(float distance) {
-		if (distance < 0.955002f)
+		if (this->dBinsRange.size() > 0)
+		{
+			int i = 0;
+			for (; i < this->dBinsRange.size(); i++)
+			{
+				if (distance < this->dBinsRange[i]) {
+					return i;
+				}
+			}
+			return i;
+		}
+		return 4;
+		/*if (distance < 0.955002f)
 		{
 			return 0;
 		}
@@ -39,7 +57,7 @@ public:
 		{
 			return this->dBins - 1;
 		}
-		return bin;
+		return bin;*/
 	}
 
 	int getOrientationBin(float orientation) {

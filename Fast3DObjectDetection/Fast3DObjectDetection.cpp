@@ -13,7 +13,6 @@
 #include <math.h>
 
 #include "utils.h"
-#include "visualize.h"
 
 #include "DetectionUnit.h"
 #include "TemplateChamferScore.h"
@@ -31,28 +30,22 @@
 #include "edgeProcessing.h"
 
 
-//  --------------- Preprocessing -------------------
-// Remove 2 highest bins
-
-
-int main()
-{
+void prepareAndSaveData() {
 	srand(time(0));
 	TimeMeasuring elapsedTime(true);
 
 	FolderTemplateList templates;
 	int templatesLoaded = loadAllTemplates(templates);
 	elapsedTime.insertBreakpoint("tplLoaded");
-	std::printf("Templates loaded in: %d [ms]\n", elapsedTime.getTimeFromBeginning());
+	std::printf("%d templates loaded in: %d [ms]\n", templatesLoaded, elapsedTime.getTimeFromBeginning());
 
 	std::vector<Triplet> triplets = generateTriplets(tripletsAmount, pointsInRowCol, pointsEdgeOffset, pointsDistance);
 	elapsedTime.insertBreakpoint("genTriplets");
-	std::printf("Triplets generated in: %d [us] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("tplLoaded",true), elapsedTime.getTimeFromBeginning()); 	
+	std::printf("Triplets generated in: %d [us] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("tplLoaded", true), elapsedTime.getTimeFromBeginning());
 	//visualizeTriplets(triplets, pointsEdgeOffset, pointsDistance, 48);
-	
+
 	TemplateHashTable hashTable;
 	HashSettings hashSettings = fillHashTable(hashTable, templates, templatesLoaded, triplets, distanceBins, orientationBins);
-	//std::getc(stdin);
 	elapsedTime.insertBreakpoint("hashTable");
 	std::printf("Hash table filled in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("genTriplets"), elapsedTime.getTimeFromBeginning());
 	std::printf("hash table size: %d\n", hashTable.size());
@@ -62,38 +55,8 @@ int main()
 		{
 			maxSize = it->second.size();
 		}
-		/*if (it->second.size() > 100)
-		{
-			QuantizedTripletValues qtz = it->first;
-			std::printf("%d = TrpI: %d _ D: %d, %d, %d _ Phi %d, %d, %d\n", it->second.size(),
-				qtz.tripletIndex, qtz.d1, qtz.d2, qtz.d3, qtz.phi1, qtz.phi2, qtz.phi3);
-			/*for (int i = 0; i < 100; i++)
-			{
-				visualizeTripletOnEdges(templates[it->second[i].folderIndex][it->second[i].templateIndex], triplets[qtz.tripletIndex], NULL, 300);
-			}
-			cv::waitKey();*/
-		//}
 	}
 	std::printf("Max size: %d\n\n", maxSize);
-	
-	//maxSize++;
-	//int *sizeCnt = new int[maxSize];
-	//for (int f = 0; f < maxSize; f++)
-	//{
-	//	sizeCnt[f] = 0;
-	//}
-	//for (auto it = hashTable.begin(); it != hashTable.end(); ++it) {
-	//	sizeCnt[it->second.size()]++;
-	//}
-	//for (int f = 0; f < maxSize; f++)
-	//{
-	//	if (sizeCnt[f] > 0)
-	//	{
-	//		std::printf("%d templates under %d keys\n", f, sizeCnt[f]);
-	//		//std::getc(stdin);
-	//	}
-	//}	
-	//delete sizeCnt;
 
 	// paralel je jiz uvnitr funkce filterTemplateEdges
 	// #pragma omp parallel for
@@ -111,12 +74,65 @@ int main()
 	elapsedTime.insertBreakpoint("filterEdges");
 	std::printf("Edges filtered in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("hashTable"), elapsedTime.getTimeFromBeginning());
 
-	savePreparedData(templates, triplets, "preparedData.bin");
+	savePreparedData("preparedData.bin", templates, triplets);
 
 	elapsedTime.insertBreakpoint("fileSaving");
 	std::printf("File saved in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("filterEdges"), elapsedTime.getTimeFromBeginning());
-	
+
+	/*FolderTemplateList templates;
+	std::vector<Triplet> triplets;
+	TemplateHashTable hashTable;
+	HashSettings hashSettingsLoad = loadPreparedData("preparedData.bin", templates, triplets, hashTable);
+	elapsedTime.insertBreakpoint("fileLoading");
+	std::printf("File loaded in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("fileSaving"), elapsedTime.getTimeFromBeginning());
+	savePreparedData("preparedData2.bin", templates, triplets);*/
+
 	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
+}
+
+void runMatching() {
+	TimeMeasuring elapsedTime(true);
+
+	std::printf("Start loading\n");
+
+	FolderTemplateList templates;
+	std::vector<Triplet> triplets;
+	TemplateHashTable hashTable;
+	HashSettings hashSettings;
+
+	bool success = loadPreparedData("preparedData.bin", templates, triplets, hashTable, hashSettings);
+	std::printf("Data loaded - %s\n", (success ? "sucessfully" : "with error"));
+
+	elapsedTime.insertBreakpoint("fileLoaded");
+	std::printf("File loaded in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBeginning(), elapsedTime.getTimeFromBeginning());
+	
+
+	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
+}
+
+int main()
+{
+
+	std::cout << "Insert index of action to run:\n";
+	std::cout << "\t1. Prepare data\n";
+	std::cout << "\t2. Run matching\n";
+
+	int algo;
+	std::cin >> algo;
+	std::cin.clear();
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+	switch (algo)
+	{
+	case 1:
+		prepareAndSaveData();
+		break;
+	case 2:
+		runMatching();
+		break;
+	default:
+		std::cout << "Invalid action";
+	}
 	
 	std::getc(stdin);
 	return 0;
