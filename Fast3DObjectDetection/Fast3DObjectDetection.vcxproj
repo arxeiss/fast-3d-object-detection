@@ -122,6 +122,7 @@
     <ClInclude Include="edgeProcessing.h" />
     <ClInclude Include="HashSettings.h" />
     <ClInclude Include="loading.h" />
+    <ClInclude Include="matching.h" />
     <ClInclude Include="sparseDescriptor.h" />
     <ClInclude Include="QuantizedTripletValues.h" />
     <ClInclude Include="TemplateChamferScore.h" />
@@ -138,6 +139,7 @@
     <ClCompile Include="edgeProcessing.cpp" />
     <ClCompile Include="Fast3DObjectDetection.cpp" />
     <ClCompile Include="loading.cpp" />
+    <ClCompile Include="matching.cpp" />
     <ClCompile Include="sparseDescriptor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -28,6 +28,7 @@
 #include "distanceAndOrientation.h"
 #include "loading.h"
 #include "edgeProcessing.h"
+#include "matching.h"
 
 
 void prepareAndSaveData() {
@@ -91,6 +92,7 @@ void prepareAndSaveData() {
 }
 
 void runMatching() {
+
 	TimeMeasuring elapsedTime(true);
 
 	std::printf("Start loading\n");
@@ -106,13 +108,20 @@ void runMatching() {
 	elapsedTime.insertBreakpoint("fileLoaded");
 	std::printf("File loaded in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBeginning(), elapsedTime.getTimeFromBeginning());
 	
+	// sliding Window
+	// udìlat výøez, pøipravit DetectionUnit
+	// Pro nalezení shodných šablon je potøeba QuantizedTripletValues, ty se získají z HashSettings
+	// pomocí spoètených hodnot z tripletù
+	// 
+	// TemplateIndex potøebuje hash kvùli unordered_map (klíè bude TemplateIndex a hodnota bude poèet výskytù)
 
 	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
+
+	matchInImage(loadTestImage_8u(1), hashSettings, triplets, hashTable);
 }
 
 int main()
 {
-
 	std::cout << "Insert index of action to run:\n";
 	std::cout << "\t1. Prepare data\n";
 	std::cout << "\t2. Run matching\n";

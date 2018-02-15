@@ -63,6 +63,9 @@
     <ClInclude Include="chamferScore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="matching.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fast3DObjectDetection.cpp">
@@ -81,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="chamferScore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="matching.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -22,11 +22,18 @@ const float lambda = 0.5f;
 const float tau = 0.6;
 const float removePixelRatio = 0.5f;
 const int kTpl = 4;
+const int thetaV = 3;
 
+// Triplets
 const int tripletsAmount = 50;
 const int pointsInRowCol = 6;
 const int pointsEdgeOffset = 4;
 const int pointsDistance = 8;
+
+// Sliding window and scale pyramid
+const int slidingWindowSize = 48; //Same size as template
+const int slidingWindowStep = 3;
+const int scalePyramidStep = 1.2;
 
 // Set max to 8, otherwise change hashing for QuantizedTripletValues
 const int distanceBins = 4;

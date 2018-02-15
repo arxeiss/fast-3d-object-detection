@@ -45,8 +45,7 @@ inline cv::Mat joinBgWithEdges_8ucv3(cv::Mat src_8u, cv::Mat edges_8u, float edg
 	return src_BGR;
 }
 
-/// not used anymore
-inline cv::Mat getTemplateToShow(DetectionUnit &unit) {
+inline int showDetectionUnit(DetectionUnit &unit, int delay = 0) {
 	cv::Mat ret;
 	unit.img_8u.copyTo(ret);
 	cv::cvtColor(ret, ret, CV_GRAY2BGR);
@@ -60,7 +59,24 @@ inline cv::Mat getTemplateToShow(DetectionUnit &unit) {
 			}
 		}
 	}
-	return ret;
+	cv::imshow("Detection unit", ret);
+	return cv::waitKey(delay);
+}
+
+inline void drawSlidingWindowToImage(cv::Mat &mat, int windowSize, int windowX, int windowY) {
+	if (mat.channels() == 1)
+	{
+		cv::cvtColor(mat, mat, CV_GRAY2BGR);
+	}
+	cv::rectangle(mat, cv::Rect(windowX, windowY, windowSize, windowSize), cv::Scalar(0, 0, 255));
+}
+
+inline int showSlidingWindowInImage(cv::Mat &img, int windowSize, int windowX, int windowY, int delay = 0) {
+	cv::Mat ret;
+	img.copyTo(ret);
+	drawSlidingWindowToImage(ret, windowSize, windowX, windowY);
+	cv::imshow("Sliding window", ret);
+	return cv::waitKey(delay);
 }
 
 /// TEST func
@@ -206,43 +222,43 @@ inline int testDetectedEdgesAndDistanceTransform() {
 	return 1;
 }
 
-void showEdgeOrientations(cv::Mat src_8u, cv::Mat edge_8u, bool fromDistanceTransform = false, std::string windowName = "Orientations") {
-	cv::Mat edgeWithOri, distanceTransform_32f;
-	cv::cvtColor(edge_8u, edgeWithOri, CV_GRAY2BGR);
-
-	if (fromDistanceTransform) {
-		distanceTransform_32f = getDistanceTransformFromEdges_32f(edge_8u);
-	}
-
-	bool onlyPositive = false;
-
-	for (int y = 5; y < edge_8u.rows; y += 5)
-	{
-		for (int x = 0; x < edge_8u.cols; x++)
-		{
-			if (edge_8u.at<uchar>(y, x) > 0)
-			{
-				continue;
-			}
-			//cv::circle(edgeWithOri, cv::Point(x, y), 1, cv::Scalar(1));
-			if (fromDistanceTransform)
-			{
-				int offsetX = x - 6, offsetY = y - 6;
-				float angle = getEdgeOrientationFromDistanceTransform(distanceTransform_32f, offsetX, offsetY, onlyPositive);
-				int dX = offsetX - round(cos(angle) * 6);
-				int dY = offsetY - round(sin(angle) * 6);
-				cv::line(edgeWithOri, cv::Point(offsetX, offsetY), cv::Point(dX, dY), cv::Scalar(0, 0, 255));
-				cv::circle(edgeWithOri, cv::Point(offsetX, offsetY), 1, cv::Scalar(255, 0, 0), -1);
-			}
-			else {
-				float angle = getEdgeOrientation(src_8u, x, y, onlyPositive);
-				int dX = x - round(cos(angle) * 6);
-				int dY = y - round(sin(angle) * 6);
-				cv::line(edgeWithOri, cv::Point(x, y), cv::Point(dX, dY), cv::Scalar(0, 0, 255));
-			}
-			x += 4;
-		}
-	}
-
-	cv::imshow(windowName, edgeWithOri);
-}
+//inline void showEdgeOrientations(cv::Mat src_8u, cv::Mat edge_8u, bool fromDistanceTransform = false, std::string windowName = "Orientations") {
+//	cv::Mat edgeWithOri, distanceTransform_32f;
+//	cv::cvtColor(edge_8u, edgeWithOri, CV_GRAY2BGR);
+//
+//	if (fromDistanceTransform) {
+//		distanceTransform_32f = getDistanceTransformFromEdges_32f(edge_8u);
+//	}
+//
+//	bool onlyPositive = false;
+//
+//	for (int y = 5; y < edge_8u.rows; y += 5)
+//	{
+//		for (int x = 0; x < edge_8u.cols; x++)
+//		{
+//			if (edge_8u.at<uchar>(y, x) > 0)
+//			{
+//				continue;
+//			}
+//			//cv::circle(edgeWithOri, cv::Point(x, y), 1, cv::Scalar(1));
+//			if (fromDistanceTransform)
+//			{
+//				int offsetX = x - 6, offsetY = y - 6;
+//				float angle = getEdgeOrientationFromDistanceTransform(distanceTransform_32f, offsetX, offsetY, onlyPositive);
+//				int dX = offsetX - round(cos(angle) * 6);
+//				int dY = offsetY - round(sin(angle) * 6);
+//				cv::line(edgeWithOri, cv::Point(offsetX, offsetY), cv::Point(dX, dY), cv::Scalar(0, 0, 255));
+//				cv::circle(edgeWithOri, cv::Point(offsetX, offsetY), 1, cv::Scalar(255, 0, 0), -1);
+//			}
+//			else {
+//				float angle = getEdgeOrientation(src_8u, x, y, onlyPositive);
+//				int dX = x - round(cos(angle) * 6);
+//				int dY = y - round(sin(angle) * 6);
+//				cv::line(edgeWithOri, cv::Point(x, y), cv::Point(dX, dY), cv::Scalar(0, 0, 255));
+//			}
+//			x += 4;
+//		}
+//	}
+//
+//	cv::imshow(windowName, edgeWithOri);
+//}

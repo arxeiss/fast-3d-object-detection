@@ -109,6 +109,34 @@ int loadAllTemplates(FolderTemplateList &templates) {
 	return templatesLoaded;
 }
 
+cv::Mat loadTestImage_8u(int imageIndex) {
+	if (imageIndex < 1 || imageIndex > 60) {
+		return cv::Mat();
+	}
+	std::string imageIndexStr = (imageIndex < 10 ? "0" : "") + std::to_string(imageIndex);
+	return cv::imread("images/CMP-8objs/test/test_" + imageIndexStr + ".jpg", CV_LOAD_IMAGE_GRAYSCALE);
+}
+
+DetectionUnit getDetectionUnitByROI(cv::Mat img_8u, int x, int y, int roiSize) {
+	DetectionUnit unit{};
+	unit.img_8u = img_8u(cv::Rect(x, y, roiSize, roiSize));
+	prepareDetectionUnit(unit);
+	return unit;
+}
+
+TripletValues getTripletValues(int tripletIndex, Triplet &triplet, DetectionUnit &unit) {
+	return getTripletValues(tripletIndex, triplet, unit, TemplateIndex(0, 0));
+}
+
+TripletValues getTripletValues(int tripletIndex, Triplet &triplet, DetectionUnit &unit, TemplateIndex templateIndex) {
+	TripletValues trpVal(tripletIndex, templateIndex);
+	getEdgeDistAndOri(unit, triplet.p1.x, triplet.p1.y, trpVal.d1, trpVal.phi1, true);
+	getEdgeDistAndOri(unit, triplet.p2.x, triplet.p2.y, trpVal.d2, trpVal.phi2, true);
+	getEdgeDistAndOri(unit, triplet.p3.x, triplet.p3.y, trpVal.d3, trpVal.phi3, true);
+
+	return trpVal;
+}
+
 void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTemplateList &templates, std::vector<Triplet> &triplets,
 	int templatesLoaded, std::vector<float> &dBinsRange, float *minD, float *maxD, float *minPhi, float *maxPhi)
 {
@@ -128,10 +156,7 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 		{
 			for (int trp = 0; trp < triplets.size(); trp++)
 			{
-				TripletValues trpVal(trp, TemplateIndex(f, tpl));
-				getEdgeDistAndOri((*listTmpPtr)[tpl], triplets[trp].p1.x, triplets[trp].p1.y, trpVal.d1, trpVal.phi1, true);
-				getEdgeDistAndOri((*listTmpPtr)[tpl], triplets[trp].p2.x, triplets[trp].p2.y, trpVal.d2, trpVal.phi2, true);
-				getEdgeDistAndOri((*listTmpPtr)[tpl], triplets[trp].p3.x, triplets[trp].p3.y, trpVal.d3, trpVal.phi3, true);
+				TripletValues trpVal = getTripletValues(trp, triplets[trp], (*listTmpPtr)[tpl], TemplateIndex(f, tpl));				
 				tripletsValues[templateTripletValI] = trpVal;
 				templateTripletValI++;
 
@@ -253,6 +278,19 @@ HashSettings fillHashTable(TemplateHashTable &hashTable, FolderTemplateList &tem
 	std::printf("\n");
 
 	return hashSettings;
+}
+
+QuantizedTripletValues getTableHashKey(HashSettings &hashSettings, DetectionUnit &unit, Triplet &triplet, int tripletIndex) {
+	TripletValues tripletValues = getTripletValues(tripletIndex, triplet, unit);
+	QuantizedTripletValues hashKey(tripletValues.tripletIndex,
+		hashSettings.getDistanceBin(tripletValues.d1),
+		hashSettings.getDistanceBin(tripletValues.d2),
+		hashSettings.getDistanceBin(tripletValues.d3),
+		hashSettings.getOrientationBin(tripletValues.phi1),
+		hashSettings.getOrientationBin(tripletValues.phi2),
+		hashSettings.getOrientationBin(tripletValues.phi3));
+
+	return hashKey;
 }
 
 void savePreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets) {

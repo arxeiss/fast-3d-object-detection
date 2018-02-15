@@ -24,6 +24,17 @@ inline void printMatType(cv::Mat img) {
 	printf("Matrix: %s %dx%d \n", r, img.cols, img.rows);
 }
 
+inline double fastPow(double base, unsigned int exp) {
+	if (exp < 1) {
+		return 1.0f;
+	}
+	double result = base;
+	while (--exp > 0) {
+		result *= base;
+	}
+	return result;
+}
+
 //float getPixelAsfloat(cv::Mat &src, int x, int y) {
 //	int type = src.type();
 //	uchar depth = type & CV_MAT_DEPTH_MASK;

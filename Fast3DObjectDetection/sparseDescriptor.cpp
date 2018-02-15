@@ -1,6 +1,8 @@
 #include "sparseDescriptor.h"
 #include "distanceAndOrientation.h"
 
+// "Kapitola 1" - nepoužíváno, nahrazeno hash mapou
+
 std::vector<float> getImgVector(cv::Mat img_32f, int step, int margin, int startX, int startY, int width, int height) {
 	if (width < 0) {
 		width = img_32f.cols;
