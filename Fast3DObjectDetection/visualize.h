@@ -63,12 +63,13 @@ inline int showDetectionUnit(DetectionUnit &unit, int delay = 0) {
 	return cv::waitKey(delay);
 }
 
-inline void drawSlidingWindowToImage(cv::Mat &mat, int windowSize, int windowX, int windowY) {
+inline void drawSlidingWindowToImage(cv::Mat &mat, int windowSize, int windowX, int windowY, float colorMultiply = 1.0f) {
 	if (mat.channels() == 1)
 	{
 		cv::cvtColor(mat, mat, CV_GRAY2BGR);
 	}
-	cv::rectangle(mat, cv::Rect(windowX, windowY, windowSize, windowSize), cv::Scalar(0, 0, 255));
+	if (colorMultiply < 0.8){ colorMultiply += 0.2; }
+	cv::rectangle(mat, cv::Rect(windowX, windowY, windowSize, windowSize), cv::Scalar(50, 50, 255 * colorMultiply));
 }
 
 inline int showSlidingWindowInImage(cv::Mat &img, int windowSize, int windowX, int windowY, int delay = 0) {

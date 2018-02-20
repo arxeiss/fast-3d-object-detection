@@ -30,6 +30,14 @@
 #include "edgeProcessing.h"
 #include "matching.h"
 
+/*
+NOTES:
+ - nejlepsi vysledky dist binu = 1.369293, 3.279279, 6.558594
+ - prumerny pocet hran je pocitany vuci templatum stejneho objektu - pocitat vuci vsem templatum?
+ - prumerny pocet hran pro detekci spocitat uz z vyfiltrovanych sablon, nebo z puvodnich pred odebrani hran?
+ - Chamfer score pociat z odfiltrovane sablony proti sliding window - mene hran, rychlejsi beh
+*/
+
 
 void prepareAndSaveData() {
 	srand(time(0));
@@ -75,7 +83,8 @@ void prepareAndSaveData() {
 	elapsedTime.insertBreakpoint("filterEdges");
 	std::printf("Edges filtered in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("hashTable"), elapsedTime.getTimeFromBeginning());
 
-	savePreparedData("preparedData.bin", templates, triplets);
+	float averageEdges = countAverageEdgesAcrossTemplates(templates);
+	savePreparedData("preparedData.bin", templates, triplets, averageEdges);
 
 	elapsedTime.insertBreakpoint("fileSaving");
 	std::printf("File saved in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("filterEdges"), elapsedTime.getTimeFromBeginning());
@@ -101,8 +110,10 @@ void runMatching() {
 	std::vector<Triplet> triplets;
 	TemplateHashTable hashTable;
 	HashSettings hashSettings;
+	float averageEdges = 0;
 
-	bool success = loadPreparedData("preparedData.bin", templates, triplets, hashTable, hashSettings);
+	bool success = loadPreparedData("preparedData.bin", templates, triplets, hashTable, hashSettings, averageEdges);
+	std::printf("Average edges: %f\n", averageEdges);
 	std::printf("Data loaded - %s\n", (success ? "sucessfully" : "with error"));
 
 	elapsedTime.insertBreakpoint("fileLoaded");
@@ -117,11 +128,17 @@ void runMatching() {
 
 	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
 
-	matchInImage(loadTestImage_8u(1), hashSettings, triplets, hashTable);
+	matchInImage(loadTestImage_8u(1), templates, hashSettings, triplets, hashTable, averageEdges);
 }
 
 int main()
 {
+	/*for (int i = 0; i < 10; i++)
+	{
+		float ratio = fastPow(1.2, i);
+		std::printf("%d: 640 / %3.3f=%3.3f\n", i, ratio, 640.0f / ratio);
+	}*/
+
 	std::cout << "Insert index of action to run:\n";
 	std::cout << "\t1. Prepare data\n";
 	std::cout << "\t2. Run matching\n";

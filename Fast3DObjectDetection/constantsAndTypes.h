@@ -33,7 +33,7 @@ const int pointsDistance = 8;
 // Sliding window and scale pyramid
 const int slidingWindowSize = 48; //Same size as template
 const int slidingWindowStep = 3;
-const int scalePyramidStep = 1.2;
+const float scalePyramidStep = 1.2;
 
 // Set max to 8, otherwise change hashing for QuantizedTripletValues
 const int distanceBins = 4;

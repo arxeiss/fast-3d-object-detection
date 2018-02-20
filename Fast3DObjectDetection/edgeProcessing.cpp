@@ -44,9 +44,9 @@ cv::Mat removeDiscriminatePoints_8u(cv::Mat &src_8u, cv::Mat &edge_8u, float rem
 		}
 	}
 
-	/*for (int i = 0; i < histogramBins; i++)
+	/*for (int f = 0; f < histogramBins; f++)
 	{
-	std::printf("%d: %d\n", i, histogram[i].size());
+	std::printf("%d: %d\n", f, histogram[f].size());
 	}*/
 
 	for (int rm = 0; rm < removeBins; rm++) {
@@ -153,9 +153,9 @@ void filterTemplateEdges(std::vector<DetectionUnit> &templates, int kTpl, float 
 		std::sort(simmilarity.begin(), simmilarity.end(), compareDescChamferScore);
 
 		/*showResized("src",  templates[t].edges_8u, 3);
-		for (int i = 0; i < 10; i++)
+		for (int f = 0; f < 10; f++)
 		{
-		showResized(std::to_string(i)+"sim", templates[simmilarity[i].index].edges_8u, 3);
+		showResized(std::to_string(f)+"sim", templates[simmilarity[f].index].edges_8u, 3);
 		}
 		cv::waitKey();*/
 
@@ -185,4 +185,21 @@ void filterTemplateEdges(std::vector<DetectionUnit> &templates, int kTpl, float 
 		templates[t].edges_8u = removedEdges[t];
 		prepareDetectionUnit(templates[t], false, false, true);
 	}
+}
+
+float countAverageEdgesAcrossTemplates(FolderTemplateList &folderTemplates) {
+	int templatesCount = 0;
+	int edgesCount = 0;
+
+	for (int f = 0; f < folderTemplates.size(); f++)
+	{
+		int templatesInFolder = folderTemplates[f].size();
+		templatesCount += templatesInFolder;
+		for (int t = 0; t < templatesInFolder; t++)
+		{
+			edgesCount += folderTemplates[f][t].edgesCount;
+		}
+	}
+
+	return ((float)edgesCount) / ((float)templatesCount);
 }

@@ -15,10 +15,6 @@ void prepareDetectionUnit(DetectionUnit &dt, bool renewEdges, bool renewDistTran
 		dt.edges_8u = getDetectedEdges_8u(dt.img_8u);
 		recountEdges = true;
 	}
-	if (dt.distanceTransform_32f.empty() || renewDistTransform)
-	{
-		dt.distanceTransform_32f = getDistanceTransformFromEdges_32f(dt.edges_8u);
-	}
 	if (dt.edgesCount == 0 || recountEdges) {
 		for (int x = 0; x < dt.edges_8u.cols; x++)
 		{
@@ -29,6 +25,16 @@ void prepareDetectionUnit(DetectionUnit &dt, bool renewEdges, bool renewDistTran
 				}
 			}
 		}
+	}
+	if (dt.edgesCount > 0) {
+		if (dt.distanceTransform_32f.empty() || renewDistTransform)
+		{
+			dt.distanceTransform_32f = getDistanceTransformFromEdges_32f(dt.edges_8u);
+		}
+	}
+	else {
+		dt.distanceTransform_32f = cv::Mat(dt.img_8u.rows, dt.img_8u.cols, CV_32F);
+		dt.distanceTransform_32f = 0.0f;
 	}
 }
 
@@ -293,7 +299,7 @@ QuantizedTripletValues getTableHashKey(HashSettings &hashSettings, DetectionUnit
 	return hashKey;
 }
 
-void savePreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets) {
+void savePreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets, float averageEdges) {
 	std::ofstream ofs(fileName, std::ios::binary);
 	if (!ofs.is_open()) {
 		std::printf("!!! - Error, cannot open a file %s for writing\n", fileName);
@@ -342,12 +348,14 @@ void savePreparedData(std::string fileName, FolderTemplateList &templates, std::
 		}
 	}
 
+	ofs.write((const char*)(&averageEdges), sizeof(float));
+
 	ofs.close();
 }
 // https://github.com/takmin/BinaryCvMat/blob/master/BinaryCvMat.cpp
 // http://pythonopencv.com/step-by-step-install-opencv-3-3-with-visual-studio-2015-on-windows-10-x64-2017-diy/
 // http://pythonopencv.com/easy-fast-pre-compiled-opencv-libraries-and-headers-for-3-2-with-visual-studio-2015-x64-windows-10-support/
-bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, HashSettings &hashSettings) {
+bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, HashSettings &hashSettings, float &averageEdges) {
 	std::ifstream ifsData(fileName, std::ios::binary);
 
 	if (!ifsData.is_open()) {
@@ -411,6 +419,8 @@ bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::
 			ifsData.read((char*)(edges->data), edges->elemSize() * edges->total());
 		}
 	}
+	ifsData.read((char*)(&averageEdges), sizeof(float));
+
 	ifsData.close();
 
 	return true;
