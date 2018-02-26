@@ -38,11 +38,11 @@ void prepareDetectionUnit(DetectionUnit &dt, bool renewEdges, bool renewDistTran
 	}
 }
 
-std::vector<Triplet> generateTriplets(const int amount, const int inColRow, const int edgeOffset, const int pointsDistance)
+std::vector<Triplet> generateTriplets()
 {
-	const int tripletPoints = inColRow * inColRow;
+	const int tripletPoints = pointsInRowCol * pointsInRowCol;
 	std::vector<Triplet> triplets;
-	for (int i = 0; i < amount; i++)
+	for (int i = 0; i < tripletsAmount; i++)
 	{
 		int p1 = rand() % tripletPoints, p2 = rand() % tripletPoints, p3 = rand() % tripletPoints;
 		while (p1 == p2)
@@ -54,9 +54,9 @@ std::vector<Triplet> generateTriplets(const int amount, const int inColRow, cons
 			p3 = rand() % tripletPoints;
 		}
 
-		Triplet newTriplet(cv::Point((p1 % inColRow) * pointsDistance + edgeOffset, (p1 / inColRow) * pointsDistance + edgeOffset),
-			cv::Point((p2 % inColRow) * pointsDistance + edgeOffset, (p2 / inColRow) * pointsDistance + edgeOffset),
-			cv::Point((p3 % inColRow) * pointsDistance + edgeOffset, (p3 / inColRow) * pointsDistance + edgeOffset));
+		Triplet newTriplet(cv::Point((p1 % pointsInRowCol) * pointsDistance + pointsEdgeOffset, (p1 / pointsInRowCol) * pointsDistance + pointsEdgeOffset),
+			cv::Point((p2 % pointsInRowCol) * pointsDistance + pointsEdgeOffset, (p2 / pointsInRowCol) * pointsDistance + pointsEdgeOffset),
+			cv::Point((p3 % pointsInRowCol) * pointsDistance + pointsEdgeOffset, (p3 / pointsInRowCol) * pointsDistance + pointsEdgeOffset));
 		bool collision = false;
 		for (int t = 0; t < triplets.size(); t++)
 		{

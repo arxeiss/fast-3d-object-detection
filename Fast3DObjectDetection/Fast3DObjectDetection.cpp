@@ -48,7 +48,7 @@ void prepareAndSaveData() {
 	elapsedTime.insertBreakpoint("tplLoaded");
 	std::printf("%d templates loaded in: %d [ms]\n", templatesLoaded, elapsedTime.getTimeFromBeginning());
 
-	std::vector<Triplet> triplets = generateTriplets(tripletsAmount, pointsInRowCol, pointsEdgeOffset, pointsDistance);
+	std::vector<Triplet> triplets = generateTriplets();
 	elapsedTime.insertBreakpoint("genTriplets");
 	std::printf("Triplets generated in: %d [us] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("tplLoaded", true), elapsedTime.getTimeFromBeginning());
 	//visualizeTriplets(triplets, pointsEdgeOffset, pointsDistance, 48);
@@ -121,11 +121,11 @@ void runMatching() {
 	std::printf("File loaded in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBeginning(), elapsedTime.getTimeFromBeginning());
 	
 	// sliding Window
-	// udìlat výøez, pøipravit DetectionUnit
-	// Pro nalezení shodných šablon je potøeba QuantizedTripletValues, ty se získají z HashSettings
-	// pomocí spoètených hodnot z tripletù
+	// udï¿½lat vï¿½ï¿½ez, pï¿½ipravit DetectionUnit
+	// Pro nalezenï¿½ shodnï¿½ch ï¿½ablon je potï¿½eba QuantizedTripletValues, ty se zï¿½skajï¿½ z HashSettings
+	// pomocï¿½ spoï¿½tenï¿½ch hodnot z tripletï¿½
 	// 
-	// TemplateIndex potøebuje hash kvùli unordered_map (klíè bude TemplateIndex a hodnota bude poèet výskytù)
+	// TemplateIndex potï¿½ebuje hash kvï¿½li unordered_map (klï¿½ï¿½ bude TemplateIndex a hodnota bude poï¿½et vï¿½skytï¿½)
 
 	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
 

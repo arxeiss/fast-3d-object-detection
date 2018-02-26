@@ -9,7 +9,7 @@
 
 void prepareDetectionUnit(DetectionUnit &dt, bool renewEdges = false, bool renewDistTransform = false, bool recountEdges = false);
 
-std::vector<Triplet> generateTriplets(const int amount, const int inColRow, const int edgeOffset, const int pointsDistance);
+std::vector<Triplet> generateTriplets();
 
 int loadAllTemplates(FolderTemplateList &templates);
 
