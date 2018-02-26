@@ -34,6 +34,7 @@ const int pointsDistance = 8;
 const int slidingWindowSize = 48; //Same size as template
 const int slidingWindowStep = 3;
 const float scalePyramidStep = 1.2;
+const float NMSMinOverlap = 0.3f;
 
 // Set max to 8, otherwise change hashing for QuantizedTripletValues
 const int distanceBins = 4;

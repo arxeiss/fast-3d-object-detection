@@ -66,6 +66,9 @@
     <ClInclude Include="matching.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Candidate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fast3DObjectDetection.cpp">

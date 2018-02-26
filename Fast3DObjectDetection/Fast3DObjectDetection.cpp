@@ -67,6 +67,8 @@ void prepareAndSaveData() {
 	}
 	std::printf("Max size: %d\n\n", maxSize);
 
+	float averageEdges = countAverageEdgesAcrossTemplates(templates);
+
 	// paralel je jiz uvnitr funkce filterTemplateEdges
 	// #pragma omp parallel for
 	for (int f = 0; f < templates.size(); f++)
@@ -75,7 +77,7 @@ void prepareAndSaveData() {
 		TimeMeasuring elapsedTime;
 		elapsedTime.startMeasuring();
 		//showResized("before", templates[f][0].edges_8u, 3);
-		filterTemplateEdges(templates[f], kTpl, lambda, thetaD, thetaPhi, tau, removePixelRatio);
+		filterTemplateEdges(templates[f], averageEdges, kTpl, lambda, thetaD, thetaPhi, tau, removePixelRatio);
 		//showResized("after", templates[f][0].edges_8u, 3);
 		//cv::waitKey();
 		std::printf("Folder %d of templates filtered in: %d [ms]\n", f, elapsedTime.getTimeFromBeginning());
@@ -83,7 +85,6 @@ void prepareAndSaveData() {
 	elapsedTime.insertBreakpoint("filterEdges");
 	std::printf("Edges filtered in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("hashTable"), elapsedTime.getTimeFromBeginning());
 
-	float averageEdges = countAverageEdgesAcrossTemplates(templates);
 	savePreparedData("preparedData.bin", templates, triplets, averageEdges);
 
 	elapsedTime.insertBreakpoint("fileSaving");
@@ -133,12 +134,7 @@ void runMatching() {
 
 int main()
 {
-	/*for (int i = 0; i < 10; i++)
-	{
-		float ratio = fastPow(1.2, i);
-		std::printf("%d: 640 / %3.3f=%3.3f\n", i, ratio, 640.0f / ratio);
-	}*/
-
+	
 	std::cout << "Insert index of action to run:\n";
 	std::cout << "\t1. Prepare data\n";
 	std::cout << "\t2. Run matching\n";

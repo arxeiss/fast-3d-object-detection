@@ -28,21 +28,18 @@ inline void showResized(cv::String label, cv::Mat img, int ratio, int waitToDraw
 }
 
 // Not used anymore
-inline cv::Mat joinBgWithEdges_8ucv3(cv::Mat src_8u, cv::Mat edges_8u, float edgeRatio = 0.3) {
-	cv::Mat src_BGR;
-	cv::cvtColor(src_8u, src_BGR, CV_GRAY2BGR);
-
-	for (int x = 0; x < src_8u.cols; x++)
+inline void drawEdgesToSource(cv::Mat src_8u3c, cv::Mat edges_8u, int xOffset, int yOffset, float scaleRatio, float edgeRatio = 0.99) {
+	
+	for (int x = 0; x < edges_8u.cols; x++)
 	{
-		for (int y = 0; y < src_8u.rows; y++)
+		for (int y = 0; y < edges_8u.rows; y++)
 		{
 			if (edges_8u.at<uchar>(y, x) == 0) {
-				src_BGR.at<cv::Vec3b>(y, x) = src_BGR.at<cv::Vec3b>(y, x) * (1 - edgeRatio) + cv::Vec3b(0, 0, 255) * edgeRatio;
+				int rX = x * scaleRatio + xOffset, rY = y * scaleRatio + yOffset;
+				src_8u3c.at<cv::Vec3b>(rY, rX) = src_8u3c.at<cv::Vec3b>(rY, rX) * (1 - edgeRatio) + cv::Vec3b(0, 255, 0) * edgeRatio;
 			}
 		}
 	}
-
-	return src_BGR;
 }
 
 inline int showDetectionUnit(DetectionUnit &unit, int delay = 0) {
@@ -63,13 +60,16 @@ inline int showDetectionUnit(DetectionUnit &unit, int delay = 0) {
 	return cv::waitKey(delay);
 }
 
-inline void drawSlidingWindowToImage(cv::Mat &mat, int windowSize, int windowX, int windowY, float colorMultiply = 1.0f) {
+inline void drawSlidingWindowToImage(cv::Mat &mat, int windowSize, int windowX, int windowY, float colorMultiply = 1.0f, std::string str = "") {
 	if (mat.channels() == 1)
 	{
 		cv::cvtColor(mat, mat, CV_GRAY2BGR);
 	}
-	if (colorMultiply < 0.8){ colorMultiply += 0.2; }
 	cv::rectangle(mat, cv::Rect(windowX, windowY, windowSize, windowSize), cv::Scalar(50, 50, 255 * colorMultiply));
+	if (str.length())
+	{
+		cv::putText(mat, str, cv::Point(windowX, windowY - 5), CV_FONT_HERSHEY_SIMPLEX, 0.35f, cv::Scalar(30, 200, 30), 1);
+	}
 }
 
 inline int showSlidingWindowInImage(cv::Mat &img, int windowSize, int windowX, int windowY, int delay = 0) {

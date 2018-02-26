@@ -9,27 +9,63 @@
 void matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges) {
 	
 	cv::Mat toDraw;
-	testImg_8u.copyTo(toDraw);
 
 	TimeMeasuring tm;
 	tm.startMeasuring();
 
+	std::vector<Candidate> candidates;
+
 	for (int i = 9; i >= 0; i--)
+	//for (int i = 0; i < 9; i++)
 	{
 		cv::Mat sizedScene;
 		printf("\n\n## SCALE PYRAMID - step %d ##\n", i);
 		float scaleRatio = fastPow(scalePyramidStep, i);
 		cv::resize(testImg_8u, sizedScene, cv::Size(round(testImg_8u.cols / scaleRatio), round(testImg_8u.rows / scaleRatio)));		
-		matchInImageWithSlidingWindow(sizedScene, toDraw, templates, hashSettings, triplets, hashTable, averageEdges, scaleRatio);
+		matchInImageWithSlidingWindow(sizedScene, candidates, templates, hashSettings, triplets, hashTable, averageEdges, scaleRatio);
+
+		/*testImg_8u.copyTo(toDraw);
+		for (int i = 0; i < candidates.size(); i++)
+		{
+			drawSlidingWindowToImage(toDraw, candidates[i].rect.width, candidates[i].rect.x, candidates[i].rect.y, candidates[i].chamferScore * 4);
+		}
 		cv::imshow("Possible candidates", toDraw);
-		cv::waitKey();
+		cv::waitKey();*/
 	}
-	std::printf("\n\n\nTotal matching time: %d [ms]", tm.getTimeFromBeginning());
+	std::printf("\n\n\nTotal matching time: %d [ms]\n", tm.getTimeFromBeginning());
+	testImg_8u.copyTo(toDraw);
+	for (int i = 0; i < candidates.size(); i++)
+	{
+		drawSlidingWindowToImage(toDraw, candidates[i].rect.width, candidates[i].rect.x, candidates[i].rect.y, candidates[i].chamferScore * 4);
+	}
+	std::printf("Total windows: %d\n", candidates.size());
 	cv::imshow("Possible candidates", toDraw);
+
+	tm.insertBreakpoint("nms");
+	std::sort(candidates.begin(), candidates.end());
+	nonMaximaSupression(candidates, testImg_8u);
+	std::printf("NMS time: %d [us]\n", tm.getTimeFromBreakpoint("nms", true));
+	
+	cv::Mat NMS;
+	testImg_8u.copyTo(NMS);
+	int windows = 0;
+	for (int i = 0; i < candidates.size(); i++)
+	{
+		if (candidates[i].active)
+		{
+			windows++;
+			std::stringstream ss;
+			ss << "F: " << candidates[i].tplIndex.folderIndex << " T: " << candidates[i].tplIndex.templateIndex;
+			drawSlidingWindowToImage(NMS, candidates[i].rect.width, candidates[i].rect.x, candidates[i].rect.y, candidates[i].chamferScore * 4, ss.str());
+			drawEdgesToSource(NMS, templates[candidates[i].tplIndex.folderIndex][candidates[i].tplIndex.templateIndex].edges_8u, candidates[i].rect.x, candidates[i].rect.y, (float)candidates[i].rect.width / (float)slidingWindowSize);
+		}
+	}
+	std::printf("Total windows after NMS: %d\n", windows);
+	cv::imshow("Detection", NMS);
 	cv::waitKey();
 }
 
-void matchInImageWithSlidingWindow(cv::Mat &scene_8u, cv::Mat &previewScene, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, float sceneScaleRatio) {
+void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &candidates, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, float sceneScaleRatio) {
 	int maxX = scene_8u.cols - slidingWindowSize + 1;
 	int maxY = scene_8u.rows - slidingWindowSize + 1;
 
@@ -41,58 +77,91 @@ void matchInImageWithSlidingWindow(cv::Mat &scene_8u, cv::Mat &previewScene, Fol
 	{
 		for (int y = 0; y < maxY; y += slidingWindowStep)
 		{
-			DetectionUnit unit = getDetectionUnitByROI(scene_8u, x, y, slidingWindowSize);
-			if (unit.edgesCount == 0) {
-				continue;
+			Candidate candidate = computeMatchInSlidingWindow(scene_8u, x, y, templates, hashSettings, triplets, hashTable, averageEdges, sceneScaleRatio);
+			if (candidate.active)
+			{			
+				#pragma omp critical
+				candidates.push_back(candidate);
 			}
-
-			std::unordered_map<TemplateIndex, int> candidatesCount;
-			for (int i = 0; i < triplets.size(); i++) {
-				QuantizedTripletValues hashKey = getTableHashKey(hashSettings, unit, triplets[i], i);
-				//std::printf("Hashtable - Cnt: %d\n", hashTable.count(hashKey));
-				if (hashTable.count(hashKey)) {
-					// Pristupuji pod klic ktery neexistuje!!! k je z tripletu, a ne z hashtable
-					//std::printf("Triplet %d - candidates %d\n", i, hashTable[hashKey].size());
-					for (int k = 0; k < hashTable[hashKey].size(); k++)
-					{
-						int c = candidatesCount[hashTable[hashKey][k]]++;
-						//std::printf("\t%2d: %2d/%4d - %dx\n", k, hashTable[hashKey][k].folderIndex, hashTable[hashKey][k].templateIndex, c);
-						//if (c > 0) {
-						//std::printf("Here!!! %2d: %2d/%4d - %dx\n", k, hashTable[hashKey][k].folderIndex, hashTable[hashKey][k].templateIndex, c);
-						//std::printf("Here!!!");
-						//}
-					}
-				}
-			}
-			int moreTimesThanThetaV = 0;
-			float bestChamferScore = -1;
-			TemplateIndex bestTemplateIndex(-1, -1);
-			for (auto it = candidatesCount.begin(); it != candidatesCount.end(); it++) {
-				if (it->second >= thetaV) {
-					moreTimesThanThetaV++;
-					float score = getOrientedChamferScore(templates[it->first.folderIndex][it->first.templateIndex], unit,
-						averageEdges, lambda, thetaD, thetaPhi);
-					if (score > bestChamferScore) {
-						bestChamferScore = score;
-						bestTemplateIndex = it->first;
-					}
-				}
-			}
-			if (moreTimesThanThetaV > 0 /*&& bestChamferScore >= 0.05*/)
-			{
-				std::printf("Total candidates %4d - more than 3: %2d, best score: %4.5f\n", candidatesCount.size(), moreTimesThanThetaV, bestChamferScore);
-#pragma omp critical
-				drawSlidingWindowToImage(previewScene, slidingWindowSize * sceneScaleRatio, x * sceneScaleRatio, y * sceneScaleRatio, bestChamferScore * 4);
-				//cv::imshow("Possible candidates", toDraw);
-				//cv::waitKey();
-			}
-
-			//showSlidingWindowInImage(scene_8u, slidingWindowSize, x, y, delay);
-			/*int key = showDetectionUnit(unit);
-			if (key == 'h') { x += 60; y = 0; }
-			if (key == 'v') { y += 60; }
-			if (key == 'c') { return; }*/
 		}
 	}
 	std::printf("Matching in %d [ms]", tm.getTimeFromBeginning());
+}
+
+Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, int x, int y, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, float sceneScaleRatio) {
+	DetectionUnit unit = getDetectionUnitByROI(scene_8u, x, y, slidingWindowSize);
+	if (unit.edgesCount == 0) {
+		return Candidate();
+	}
+
+	std::unordered_map<TemplateIndex, int> candidatesCount;
+	for (int i = 0; i < triplets.size(); i++) {
+		QuantizedTripletValues hashKey = getTableHashKey(hashSettings, unit, triplets[i], i);
+		if (hashTable.count(hashKey)) {
+			for (int k = 0; k < hashTable[hashKey].size(); k++)
+			{
+				candidatesCount[hashTable[hashKey][k]]++;
+			}
+		}
+	}
+	int moreTimesThanThetaV = 0;
+	float bestChamferScore = -1;
+	TemplateIndex bestTemplateIndex(-1, -1);
+	for (auto it = candidatesCount.begin(); it != candidatesCount.end(); it++) {
+		if (it->second >= thetaV) {
+			moreTimesThanThetaV++;
+			float score = getOrientedChamferScore(templates[it->first.folderIndex][it->first.templateIndex], unit,
+				averageEdges, lambda, thetaD, thetaPhi);
+			if (score > bestChamferScore) {
+				bestChamferScore = score;
+				bestTemplateIndex = it->first;
+			}
+		}
+	}
+
+	if (moreTimesThanThetaV > 0 /*&& bestChamferScore >= 0.05*/) {
+		std::printf("Total candidates %4d - more than 3: %2d, best score: %4.5f\n", candidatesCount.size(), moreTimesThanThetaV, bestChamferScore);
+		return Candidate(
+			x * sceneScaleRatio,
+			y * sceneScaleRatio,
+			slidingWindowSize * sceneScaleRatio,
+			bestTemplateIndex,
+			bestChamferScore);
+	}
+	return Candidate();
+}
+
+void nonMaximaSupression(std::vector<Candidate> &candidates, cv::Mat &scene_8u) {
+	for (int i = 0; i < candidates.size(); i++)
+	{
+		bool startFromBeginning = false;
+		if (!candidates[i].active) { continue; }
+		for (int j = i+1; j < candidates.size(); j++)
+		{
+			if (!candidates[j].active) { continue; }
+
+			if (candidates[i].percentageOverlap(candidates[j]) >= NMSMinOverlap)
+			{
+				if (candidates[i].chamferScore > candidates[j].chamferScore)
+				{
+					candidates[j].active = false;
+				}
+				else
+				{
+					candidates[i].active = false;
+					i = j;
+					startFromBeginning = true;
+					//break;
+				}
+			}
+			else if (candidates[i].rect.x + candidates[i].rect.width <= candidates[j].rect.x)
+			{
+				break;
+			}
+		}
+		if (startFromBeginning)
+		{
+			i = -1;
+		}
+	}
 }

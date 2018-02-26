@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Candidate.h" />
     <ClInclude Include="chamferScore.h" />
     <ClInclude Include="constantsAndTypes.h" />
     <ClInclude Include="DetectionUnit.h" />

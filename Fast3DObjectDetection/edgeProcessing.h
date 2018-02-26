@@ -9,6 +9,6 @@ int selectingByEdgeOrientations();
 
 cv::Mat removeNonStablePoints_8u(DetectionUnit &srcTemplate, std::vector<DetectionUnit> &simmilarTemplates, float thetaD, float thetaPhi, float tau);
 
-void filterTemplateEdges(std::vector<DetectionUnit> &templates, int kTpl, float lambda, float thetaD, float thetaPhi, float tau, float removePixelRatio);
+void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdges, int kTpl, float lambda, float thetaD, float thetaPhi, float tau, float removePixelRatio);
 
 float countAverageEdgesAcrossTemplates(FolderTemplateList &folderTemplates);
