@@ -110,8 +110,7 @@ Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, int x, int y, FolderTem
 	for (auto it = candidatesCount.begin(); it != candidatesCount.end(); it++) {
 		if (it->second >= thetaV) {
 			moreTimesThanThetaV++;
-			float score = getOrientedChamferScore(templates[it->first.folderIndex][it->first.templateIndex], unit,
-				averageEdges, lambda, thetaD, thetaPhi);
+			float score = getOrientedChamferScore(templates[it->first.folderIndex][it->first.templateIndex], unit, averageEdges);
 			if (score > bestChamferScore) {
 				bestChamferScore = score;
 				bestTemplateIndex = it->first;

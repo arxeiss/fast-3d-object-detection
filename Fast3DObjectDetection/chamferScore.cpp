@@ -1,8 +1,9 @@
 #include "chamferScore.h"
 
+#include "constantsAndTypes.h"
 #include "distanceAndOrientation.h"
 
-float getOrientedChamferScore(DetectionUnit &srcTemplate, DetectionUnit &comparingImage, float averageEdges, float lambda, float thetaD, float thetaPhi, int* matchEdges) {
+float getOrientedChamferScore(DetectionUnit &srcTemplate, DetectionUnit &comparingImage, float averageEdges, int* matchEdges) {
 	int edges = 0;
 	for (int x = 0; x < srcTemplate.edges_8u.cols; x++)
 	{
