@@ -139,7 +139,7 @@ void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdg
 		{
 			if (i != t)
 			{
-				float chamferScore = getOrientedChamferScore(templates[t], templates[i], averageEdges, lambda, thetaD, thetaPhi);
+				float chamferScore = getOrientedChamferScore(templates[t], templates[i], averageEdges);
 				simmilarity.push_back(TemplateChamferScore(i, chamferScore));
 			}
 		}
