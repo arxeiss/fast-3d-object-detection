@@ -129,7 +129,7 @@ cv::Mat removeNonStablePoints_8u(DetectionUnit &srcTemplate, std::vector<Detecti
 	return removedPoints_8u;
 }
 
-void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdges, int kTpl, float lambda, float thetaD, float thetaPhi, float tau, float removePixelRatio) {
+void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdges) {
 	std::vector<cv::Mat> removedEdges(templates.size());
 #pragma omp parallel for
 	for (int t = 0; t < templates.size(); t++)

@@ -77,7 +77,7 @@ void prepareAndSaveData() {
 		TimeMeasuring elapsedTime;
 		elapsedTime.startMeasuring();
 		//showResized("before", templates[f][0].edges_8u, 3);
-		filterTemplateEdges(templates[f], averageEdges, kTpl, lambda, thetaD, thetaPhi, tau, removePixelRatio);
+		filterTemplateEdges(templates[f], averageEdges);
 		//showResized("after", templates[f][0].edges_8u, 3);
 		//cv::waitKey();
 		std::printf("Folder %d of templates filtered in: %d [ms]\n", f, elapsedTime.getTimeFromBeginning());
