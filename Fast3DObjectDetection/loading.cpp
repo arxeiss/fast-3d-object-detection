@@ -233,14 +233,14 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 
 }
 
-HashSettings fillHashTable(TemplateHashTable &hashTable, FolderTemplateList &templates, int templatesLoaded, std::vector<Triplet> &triplets, int dBins, int phiBins) {
+HashSettings fillHashTable(TemplateHashTable &hashTable, FolderTemplateList &templates, int templatesLoaded, std::vector<Triplet> &triplets) {
 	std::vector<TripletValues> tripletsValues;
 	float minD, maxD, minPhi, maxPhi;
 	TimeMeasuring tm(true);
 	std::vector<float> dBinsRange;
 	countTripletsValues(tripletsValues, templates, triplets, templatesLoaded, dBinsRange, &minD, &maxD, &minPhi, &maxPhi);
 	std::printf("Count triplet vals in %d[ms]\n", tm.getTimeFromBeginning());
-	HashSettings hashSettings(minD, maxD, minPhi, maxPhi, dBins, phiBins);
+	HashSettings hashSettings(minD, maxD, minPhi, maxPhi, distanceBins, orientationBins);
 	hashSettings.dBinsRange = dBinsRange;
 
 	std::printf("\nTripletsValues: %d\n\n", tripletsValues.size());
@@ -402,7 +402,7 @@ bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::
 		}
 	}
 	int templatesLoaded = folders * templatesPerFolder;
-	hashSettings = fillHashTable(hashTable, templates, templatesLoaded, triplets, distanceBins, orientationBins);
+	hashSettings = fillHashTable(hashTable, templates, templatesLoaded, triplets);
 
 	for (int f = 0; f < folders; f++)
 	{

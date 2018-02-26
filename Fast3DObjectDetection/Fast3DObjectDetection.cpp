@@ -54,7 +54,7 @@ void prepareAndSaveData() {
 	//visualizeTriplets(triplets, pointsEdgeOffset, pointsDistance, 48);
 
 	TemplateHashTable hashTable;
-	HashSettings hashSettings = fillHashTable(hashTable, templates, templatesLoaded, triplets, distanceBins, orientationBins);
+	HashSettings hashSettings = fillHashTable(hashTable, templates, templatesLoaded, triplets);
 	elapsedTime.insertBreakpoint("hashTable");
 	std::printf("Hash table filled in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("genTriplets"), elapsedTime.getTimeFromBeginning());
 	std::printf("hash table size: %d\n", hashTable.size());

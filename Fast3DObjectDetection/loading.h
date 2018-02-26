@@ -23,7 +23,7 @@ TripletValues getTripletValues(int tripletIndex, Triplet &triplet, DetectionUnit
 void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTemplateList &templates, std::vector<Triplet> &triplets,
 	int templatesLoaded, std::vector<float> &dBinsRange, float *minD = NULL, float *maxD = NULL, float *minPhi = NULL, float *maxPhi = NULL);
 
-HashSettings fillHashTable(TemplateHashTable &hashTable, FolderTemplateList &templates, int templatesLoaded, std::vector<Triplet> &triplets, int dBins, int phiBins);
+HashSettings fillHashTable(TemplateHashTable &hashTable, FolderTemplateList &templates, int templatesLoaded, std::vector<Triplet> &triplets);
 
 QuantizedTripletValues getTableHashKey(HashSettings &hashSettings, DetectionUnit &unit, Triplet &triplet, int tripletIndex);
 
