@@ -6,7 +6,7 @@
 #include "chamferScore.h"
 #include "loading.h"
 
-cv::Mat removeDiscriminatePoints_8u(cv::Mat &src_8u, cv::Mat &edge_8u, float removePixelRatio) {
+cv::Mat removeDiscriminatePoints_8u(cv::Mat &src_8u, cv::Mat &edge_8u) {
 	cv::Mat filtered_8u;
 	edge_8u.copyTo(filtered_8u);
 	// 15, 45, 75, 105, 135, 165
@@ -82,7 +82,7 @@ int selectingByEdgeOrientations() {
 	printMatType(hand_8u);
 
 	cv::Mat handEdge_8u = getDetectedEdges_8u(hand_8u);
-	cv::Mat handEdgeFiltered = removeDiscriminatePoints_8u(hand_8u, handEdge_8u, removePixelRatio);
+	cv::Mat handEdgeFiltered = removeDiscriminatePoints_8u(hand_8u, handEdge_8u);
 
 	//cv::imshow("hand", hand);
 	cv::imshow("hand_edge", handEdge_8u);
@@ -92,7 +92,7 @@ int selectingByEdgeOrientations() {
 	return 0;
 }
 
-cv::Mat removeNonStablePoints_8u(DetectionUnit &srcTemplate, std::vector<DetectionUnit> &simmilarTemplates, float thetaD, float thetaPhi, float tau) {
+cv::Mat removeNonStablePoints_8u(DetectionUnit &srcTemplate, std::vector<DetectionUnit> &simmilarTemplates) {
 	int kTpl = simmilarTemplates.size();
 	cv::Mat removedPoints_8u;
 	srcTemplate.edges_8u.copyTo(removedPoints_8u);
@@ -158,11 +158,11 @@ void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdg
 		{
 			simmilarTemplates[i] = templates[simmilarity[i].index];
 		}
-		cv::Mat nonStableEdges = removeNonStablePoints_8u(templates[t], simmilarTemplates, thetaD, thetaPhi, tau);
-		removedEdges[t] = removeDiscriminatePoints_8u(templates[t].img_8u, nonStableEdges, removePixelRatio);
+		cv::Mat nonStableEdges = removeNonStablePoints_8u(templates[t], simmilarTemplates);
+		removedEdges[t] = removeDiscriminatePoints_8u(templates[t].img_8u, nonStableEdges);
 
 		/*showResized("srcEdges", templates[t].edges_8u, 3);
-		cv::Mat nonStableEdges = removeNonStablePoints_8u(templates[t], simmilarTemplates, thetaD, thetaPhi, tau);
+		cv::Mat nonStableEdges = removeNonStablePoints_8u(templates[t], simmilarTemplates);
 		showResized("non stable", nonStableEdges, 3);
 		removedEdges[t] = removeDiscriminatePoints_8u(templates[t].img_8u, nonStableEdges, removePixelRatio);
 		showResized("discrimintaive", removeDiscriminatePoints_8u(templates[t].img_8u, templates[t].edges_8u, removePixelRatio), 3);
