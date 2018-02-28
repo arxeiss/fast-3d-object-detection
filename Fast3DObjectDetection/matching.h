@@ -13,4 +13,4 @@ void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &ca
 
 Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, int x, int y, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, float sceneScaleRatio);
 
-void nonMaximaSupression(std::vector<Candidate> &candidates, cv::Mat &scene_8u);
+void nonMaximaSupression(std::vector<Candidate> &candidates);

@@ -130,7 +130,7 @@ Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, int x, int y, FolderTem
 	return Candidate();
 }
 
-void nonMaximaSupression(std::vector<Candidate> &candidates, cv::Mat &scene_8u) {
+void nonMaximaSupression(std::vector<Candidate> &candidates) {
 	for (int i = 0; i < candidates.size(); i++)
 	{
 		bool startFromBeginning = false;
@@ -150,7 +150,6 @@ void nonMaximaSupression(std::vector<Candidate> &candidates, cv::Mat &scene_8u) 
 					candidates[i].active = false;
 					i = j;
 					startFromBeginning = true;
-					//break;
 				}
 			}
 			else if (candidates[i].rect.x + candidates[i].rect.width <= candidates[j].rect.x)
