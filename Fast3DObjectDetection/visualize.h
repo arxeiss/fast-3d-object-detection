@@ -42,7 +42,7 @@ inline void drawEdgesToSource(cv::Mat src_8u3c, cv::Mat edges_8u, int xOffset, i
 	}
 }
 
-inline int showDetectionUnit(DetectionUnit &unit, int delay = 0) {
+inline int showDetectionUnit(DetectionUnit &unit, int delay = 0, std::string windowName = "Detection unit") {
 	cv::Mat ret;
 	unit.img_8u.copyTo(ret);
 	cv::cvtColor(ret, ret, CV_GRAY2BGR);
@@ -56,7 +56,7 @@ inline int showDetectionUnit(DetectionUnit &unit, int delay = 0) {
 			}
 		}
 	}
-	cv::imshow("Detection unit", ret);
+	cv::imshow(windowName, ret);
 	return cv::waitKey(delay);
 }
 

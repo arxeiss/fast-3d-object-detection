@@ -48,6 +48,7 @@ void prepareAndSaveData() {
 	elapsedTime.insertBreakpoint("tplLoaded");
 	std::printf("%d templates loaded in: %d [ms]\n", templatesLoaded, elapsedTime.getTimeFromBeginning());
 
+	float averageEdges = countAverageEdgesAcrossTemplates(templates);
 	std::vector<Triplet> triplets = generateTriplets();
 	elapsedTime.insertBreakpoint("genTriplets");
 	std::printf("Triplets generated in: %d [us] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("tplLoaded", true), elapsedTime.getTimeFromBeginning());
@@ -66,8 +67,6 @@ void prepareAndSaveData() {
 		}
 	}
 	std::printf("Max size: %d\n\n", maxSize);
-
-	float averageEdges = countAverageEdgesAcrossTemplates(templates);
 
 	// paralel je jiz uvnitr funkce filterTemplateEdges
 	// #pragma omp parallel for

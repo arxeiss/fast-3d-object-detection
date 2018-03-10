@@ -116,9 +116,6 @@ int loadAllTemplates(FolderTemplateList &templates) {
 }
 
 cv::Mat loadTestImage_8u(int imageIndex) {
-	if (imageIndex < 1 || imageIndex > 60) {
-		return cv::Mat();
-	}
 	std::string imageIndexStr = (imageIndex < 10 ? "0" : "") + std::to_string(imageIndex);
 	return cv::imread("images/CMP-8objs/test/test_" + imageIndexStr + ".jpg", CV_LOAD_IMAGE_GRAYSCALE);
 }

@@ -43,7 +43,7 @@ void matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettin
 
 	tm.insertBreakpoint("nms");
 	std::sort(candidates.begin(), candidates.end());
-	nonMaximaSupression(candidates, testImg_8u);
+	nonMaximaSupression(candidates);
 	std::printf("NMS time: %d [us]\n", tm.getTimeFromBreakpoint("nms", true));
 	
 	cv::Mat NMS;
