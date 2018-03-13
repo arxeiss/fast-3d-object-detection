@@ -10,7 +10,7 @@ public:
 	bool operator==(const TemplateIndex &cmp) const
 	{
 		return (this->folderIndex == cmp.folderIndex &&
-			this->templateIndex == cmp.folderIndex);
+			this->templateIndex == cmp.templateIndex);
 	}
 };
 

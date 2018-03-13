@@ -143,7 +143,7 @@ TripletValues getTripletValues(int tripletIndex, Triplet &triplet, DetectionUnit
 void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTemplateList &templates, std::vector<Triplet> &triplets,
 	int templatesLoaded, std::vector<float> &dBinsRange, float *minD, float *maxD, float *minPhi, float *maxPhi)
 {
-	float minDTmp = FLT_MAX, maxDTmp = FLT_MIN, minPhiTmp = FLT_MAX, maxPhiTmp = FLT_MIN;
+	float minDTmp = FLT_MAX, maxDTmp = -FLT_MAX, minPhiTmp = FLT_MAX, maxPhiTmp = -FLT_MAX;
 	tripletsValues = std::vector<TripletValues>(templatesLoaded * triplets.size());
 	std::vector<float> distances = std::vector<float>(tripletsValues.size() * 3);
 	std::printf("TripletsValues - %d, distances - %d\n", tripletsValues.size(), distances.size());
@@ -159,7 +159,7 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 		{
 			for (int trp = 0; trp < triplets.size(); trp++)
 			{
-				TripletValues trpVal = getTripletValues(trp, triplets[trp], (*listTmpPtr)[tpl], TemplateIndex(f, tpl));				
+				TripletValues trpVal = getTripletValues(trp, triplets[trp], (*listTmpPtr)[tpl], TemplateIndex(f, tpl));			
 				tripletsValues[templateTripletValI] = trpVal;
 				templateTripletValI++;
 

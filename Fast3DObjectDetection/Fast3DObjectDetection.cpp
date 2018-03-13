@@ -155,6 +155,7 @@ int main()
 		std::cout << "Invalid action";
 	}
 	
+	cv::destroyAllWindows();
 	std::getc(stdin);
 	return 0;
 	
