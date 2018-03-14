@@ -119,7 +119,7 @@ Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, int x, int y, FolderTem
 	}
 
 	if (moreTimesThanThetaV > 0 /*&& bestChamferScore >= 0.05*/) {
-		std::printf("Total candidates %4d - more than 3: %2d, best score: %4.5f\n", candidatesCount.size(), moreTimesThanThetaV, bestChamferScore);
+		//std::printf("Total candidates %4d - more than 3: %2d, best score: %4.5f\n", candidatesCount.size(), moreTimesThanThetaV, bestChamferScore);
 		return Candidate(
 			x * sceneScaleRatio,
 			y * sceneScaleRatio,

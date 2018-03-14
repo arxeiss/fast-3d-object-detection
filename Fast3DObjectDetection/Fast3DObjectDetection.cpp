@@ -128,7 +128,10 @@ void runMatching() {
 
 	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
 
-	matchInImage(loadTestImage_8u(1), templates, hashSettings, triplets, hashTable, averageEdges);
+	for (int i = 1; i <= 60; i++)
+	{
+		matchInImage(loadTestImage_8u(i), templates, hashSettings, triplets, hashTable, averageEdges);
+	}
 }
 
 int main()
