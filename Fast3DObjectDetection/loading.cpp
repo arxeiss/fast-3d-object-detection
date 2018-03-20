@@ -78,14 +78,14 @@ std::vector<Triplet> generateTriplets()
 
 int loadAllTemplates(FolderTemplateList &templates) {
 	std::string folders[] = {
-		"images/CMP-8objs/train-opt2/block/",
-		"images/CMP-8objs/train-opt2/bridge/",
-		"images/CMP-8objs/train-opt2/cup/",
-		"images/CMP-8objs/train-opt2/driver/",
-		"images/CMP-8objs/train-opt2/eye/",
-		"images/CMP-8objs/train-opt2/lid/",
-		"images/CMP-8objs/train-opt2/screw/",
-		"images/CMP-8objs/train-opt2/whiteblock/"
+		"images/CMP-8objs/train-opt2/0-block/",
+		"images/CMP-8objs/train-opt2/1-bridge/",
+		"images/CMP-8objs/train-opt2/2-cup/",
+		"images/CMP-8objs/train-opt2/3-driver/",
+		"images/CMP-8objs/train-opt2/4-eye/",
+		"images/CMP-8objs/train-opt2/5-lid/",
+		"images/CMP-8objs/train-opt2/6-screw/",
+		"images/CMP-8objs/train-opt2/7-whiteblock/"
 	};
 	int templatesInFolder = 1620;
 	templates = FolderTemplateList(sizeof(folders) / sizeof(folders[0]));

@@ -16,13 +16,14 @@ const cv::Size edgeDetector_BlurSize(3, 3);
 const int canny_LowThreshold = 45, canny_Ratio = 5, canny_KernelSize = 3;
 const int distanceTransform_MaskSize = 3;
 
-const float thetaD = 3.1;
-const float thetaPhi = M_PI / 9.0f;
-const float lambda = 0.5f;
-const float tau = 0.6;
-const float removePixelRatio = 0.5f;
-const int kTpl = 4;
-const int thetaV = 3;
+const float thetaD = 3.1;			// Used in removing edges and computing chamfer score
+const float thetaPhi = M_PI / 9.0f; // Same as above
+const float lambda = 0.5f;			// Used in chamfer score computing - Compensating the Bias Towards Simples Shapes
+const float tau = 0.6;				// Ratio * kTpl - how many edges must be in kTpl templates same to keep them
+const float removePixelRatio = 0.4f;// How many percent of edges to remove
+const int kTpl = 4;					// How many templates are compared to current to remove non stable edges
+const int thetaV = 4;				// How many triplets must have same template index to keep it as candidate
+const float minAvgEdgesRatio = 0.5; // Min averages to keep candidate (minAvgEdgesRatio * averageEdges)
 
 // Triplets
 const int tripletsAmount = 50;
