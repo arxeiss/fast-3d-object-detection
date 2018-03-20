@@ -114,6 +114,7 @@ void runMatching() {
 
 	bool success = loadPreparedData("preparedData.bin", templates, triplets, hashTable, hashSettings, averageEdges);
 	std::printf("Average edges: %f\n", averageEdges);
+	std::printf("hash table size: %d / buckets: %d\n", hashTable.size(), hashTable.bucket_count());
 	std::printf("Data loaded - %s\n", (success ? "sucessfully" : "with error"));
 
 	elapsedTime.insertBreakpoint("fileLoaded");
