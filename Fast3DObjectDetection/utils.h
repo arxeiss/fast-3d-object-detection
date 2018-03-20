@@ -35,6 +35,14 @@ inline double fastPow(double base, unsigned int exp) {
 	return result;
 }
 
+// Thanks to https://github.com/kobzol and https://stackoverflow.com/a/12996028/1107768
+inline unsigned int improveIntHash(unsigned int x) {
+	x = ((x >> 16) ^ x) * 0x45d9f3b;
+	x = ((x >> 16) ^ x) * 0x45d9f3b;
+	x = (x >> 16) ^ x;
+	return x;
+}
+
 //float getPixelAsfloat(cv::Mat &src, int x, int y) {
 //	int type = src.type();
 //	uchar depth = type & CV_MAT_DEPTH_MASK;

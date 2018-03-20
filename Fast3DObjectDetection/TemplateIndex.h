@@ -1,4 +1,7 @@
 #pragma once
+
+#include "utils.h"
+
 class TemplateIndex
 {
 public:
@@ -20,7 +23,7 @@ namespace std {
 	{
 		std::size_t operator()(const TemplateIndex& k) const
 		{
-			return (k.templateIndex << 4) | (k.folderIndex << 0);
+			return improveIntHash((k.templateIndex << 4) | (k.folderIndex << 0));
 		}
 	};
 }
