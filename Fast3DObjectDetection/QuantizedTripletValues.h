@@ -1,6 +1,7 @@
 #pragma once
 
 #include <opencv2/opencv.hpp>
+#include "utils.h"
 
 class QuantizedTripletValues
 {
@@ -41,7 +42,8 @@ namespace std {
 	{
 		std::size_t operator()(const QuantizedTripletValues& k) const
 		{
-			return (k.tripletIndex << 18) | (k.d1 << 15) | (k.d2 << 12) | (k.d3 << 9) | (k.phi1 << 6) | (k.phi2 << 3) | (k.phi3 << 0);
+			return improveIntHash((k.tripletIndex << 18) | (k.d1 << 15) | (k.d2 << 12) | (k.d3 << 9) | (k.phi1 << 6) | (k.phi2 << 3) | (k.phi3 << 0));
+			
 		}
 	};
 }
