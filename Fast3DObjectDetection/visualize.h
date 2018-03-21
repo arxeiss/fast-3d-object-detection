@@ -28,7 +28,7 @@ inline void showResized(cv::String label, cv::Mat img, int ratio, int waitToDraw
 }
 
 // Not used anymore
-inline void drawEdgesToSource(cv::Mat src_8u3c, cv::Mat edges_8u, int xOffset, int yOffset, float scaleRatio, float edgeRatio = 0.99) {
+inline void drawEdgesToSource(cv::Mat &src_8u3c, cv::Mat &edges_8u, int xOffset, int yOffset, float scaleRatio, float edgeRatio = 0.99) {
 	
 	for (int x = 0; x < edges_8u.cols; x++)
 	{
@@ -81,7 +81,7 @@ inline int showSlidingWindowInImage(cv::Mat &img, int windowSize, int windowX, i
 }
 
 /// TEST func
-inline int visualizeTriplets(std::vector<Triplet> triplets, int edgeOffset, int pointsDistance, int imageColsRows, int scaleRatio = 10, int wait = 100)
+inline int visualizeTriplets(std::vector<Triplet> &triplets, int edgeOffset, int pointsDistance, int imageColsRows, int scaleRatio = 10, int wait = 100)
 {
 	cv::Mat netRaw, netSingle, netAll;
 

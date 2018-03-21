@@ -1,6 +1,6 @@
 #pragma once
 
-inline void printMatType(cv::Mat img) {
+inline void printMatType(cv::Mat &img) {
 	int type = img.type();
 	std::string r;
 
