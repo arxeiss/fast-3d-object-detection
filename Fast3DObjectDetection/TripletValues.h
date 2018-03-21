@@ -9,7 +9,7 @@ public:
 
 	TripletValues(): templateIndex(0, 0){ }
 
-	TripletValues(const int tripletIndex, const TemplateIndex templateIndex,
+	TripletValues(const int tripletIndex, const TemplateIndex &templateIndex,
 		const float d1 = 0.0f, const float d2 = 0.0f, const float d3 = 0.0f,
 		const float phi1 = 0.0f, const float phi2 = 0.0f, const float phi3 = 0.0f) : templateIndex(templateIndex)
 	{		

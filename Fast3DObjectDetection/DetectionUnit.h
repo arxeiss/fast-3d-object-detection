@@ -11,7 +11,7 @@ public:
 	int edgesCount;
 
 	DetectionUnit() {};
-	DetectionUnit(cv::Mat img_8u, cv::Mat edges_8u, cv::Mat distanceTransform_32f, int edgesCount) {
+	DetectionUnit(cv::Mat& img_8u, cv::Mat& edges_8u, cv::Mat& distanceTransform_32f, int edgesCount) {
 		this->img_8u = img_8u;
 		this->edges_8u = edges_8u;
 		this->distanceTransform_32f = distanceTransform_32f;
