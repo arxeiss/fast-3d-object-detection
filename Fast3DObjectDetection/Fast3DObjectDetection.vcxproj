@@ -124,6 +124,9 @@
     <ClInclude Include="HashSettings.h" />
     <ClInclude Include="loading.h" />
     <ClInclude Include="matching.h" />
+    <ClInclude Include="robin_growth_policy.h" />
+    <ClInclude Include="robin_hash.h" />
+    <ClInclude Include="robin_map.h" />
     <ClInclude Include="sparseDescriptor.h" />
     <ClInclude Include="QuantizedTripletValues.h" />
     <ClInclude Include="TemplateChamferScore.h" />
