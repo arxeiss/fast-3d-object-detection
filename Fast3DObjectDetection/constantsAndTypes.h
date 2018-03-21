@@ -5,11 +5,11 @@
 	#define _USE_MATH_DEFINES
 #endif // !_USE_MATH_DEFINES
 #include <math.h>
-#include <unordered_map>
 
 #include "DetectionUnit.h"
 #include "QuantizedTripletValues.h"
 #include "TemplateIndex.h"
+#include "sparse_map.h"
 
 // CONSTANTS
 const cv::Size edgeDetector_BlurSize(3, 3);
@@ -46,4 +46,4 @@ const cv::Mat yDerivMask = (cv::Mat_<float>(3, 3) << -1.0f, -2.0f, -1.0f, 0, 0, 
 
 typedef std::vector<DetectionUnit> TemplateList;
 typedef std::vector<TemplateList> FolderTemplateList;
-typedef std::unordered_map<QuantizedTripletValues, std::vector<TemplateIndex>> TemplateHashTable;
+typedef tsl::sparse_map<QuantizedTripletValues, std::vector<TemplateIndex>> TemplateHashTable;

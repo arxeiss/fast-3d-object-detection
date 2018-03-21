@@ -126,6 +126,9 @@
     <ClInclude Include="matching.h" />
     <ClInclude Include="sparseDescriptor.h" />
     <ClInclude Include="QuantizedTripletValues.h" />
+    <ClInclude Include="sparse_growth_policy.h" />
+    <ClInclude Include="sparse_hash.h" />
+    <ClInclude Include="sparse_map.h" />
     <ClInclude Include="TemplateChamferScore.h" />
     <ClInclude Include="TemplateIndex.h" />
     <ClInclude Include="TimeMeasuring.h" />

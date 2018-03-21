@@ -69,6 +69,15 @@
     <ClInclude Include="Candidate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="sparse_growth_policy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sparse_hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sparse_map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fast3DObjectDetection.cpp">
