@@ -4,7 +4,7 @@ class Triplet
 public:
 	cv::Point p1, p2, p3;
 
-	Triplet(cv::Point p1, cv::Point p2, cv::Point p3) {
+	Triplet(cv::Point &p1, cv::Point &p2, cv::Point &p3) {
 		this->p1 = p1;
 		this->p2 = p2;
 		this->p3 = p3;
