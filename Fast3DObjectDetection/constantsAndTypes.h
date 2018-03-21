@@ -46,4 +46,10 @@ const cv::Mat yDerivMask = (cv::Mat_<float>(3, 3) << -1.0f, -2.0f, -1.0f, 0, 0, 
 
 typedef std::vector<DetectionUnit> TemplateList;
 typedef std::vector<TemplateList> FolderTemplateList;
-typedef tsl::hopscotch_map<QuantizedTripletValues, std::vector<TemplateIndex>> TemplateHashTable;
+typedef tsl::hopscotch_map<
+	QuantizedTripletValues,
+	std::vector<TemplateIndex>,
+	std::hash<QuantizedTripletValues>,
+	std::equal_to<QuantizedTripletValues>,
+	std::allocator<std::pair<QuantizedTripletValues, std::vector<TemplateIndex>>>,
+	62U, false, tsl::power_of_two_growth_policy> TemplateHashTable;
