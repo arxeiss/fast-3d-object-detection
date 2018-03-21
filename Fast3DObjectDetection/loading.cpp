@@ -120,7 +120,7 @@ cv::Mat loadTestImage_8u(int imageIndex) {
 	return cv::imread("images/CMP-8objs/test/test_" + imageIndexStr + ".jpg", CV_LOAD_IMAGE_GRAYSCALE);
 }
 
-DetectionUnit getDetectionUnitByROI(cv::Mat img_8u, int x, int y, int roiSize) {
+DetectionUnit getDetectionUnitByROI(cv::Mat &img_8u, int x, int y, int roiSize) {
 	DetectionUnit unit{};
 	unit.img_8u = img_8u(cv::Rect(x, y, roiSize, roiSize));
 	prepareDetectionUnit(unit);
@@ -131,7 +131,7 @@ TripletValues getTripletValues(int tripletIndex, Triplet &triplet, DetectionUnit
 	return getTripletValues(tripletIndex, triplet, unit, TemplateIndex(0, 0));
 }
 
-TripletValues getTripletValues(int tripletIndex, Triplet &triplet, DetectionUnit &unit, TemplateIndex templateIndex) {
+TripletValues getTripletValues(int tripletIndex, Triplet &triplet, DetectionUnit &unit, TemplateIndex &templateIndex) {
 	TripletValues trpVal(tripletIndex, templateIndex);
 	getEdgeDistAndOri(unit, triplet.p1.x, triplet.p1.y, trpVal.d1, trpVal.phi1, true);
 	getEdgeDistAndOri(unit, triplet.p2.x, triplet.p2.y, trpVal.d2, trpVal.phi2, true);
