@@ -50,7 +50,7 @@ void prepareAndSaveData() {
 	std::printf("%d templates loaded in: %d [ms]\n", templatesLoaded, elapsedTime.getTimeFromBeginning());
 
 	float averageEdges = countAverageEdgesAcrossTemplates(templates);
-	showChamferScore(templates[0][0], templates[0][1], averageEdges);
+	//showChamferScore(templates[0][0], templates[0][1], averageEdges);
 	std::vector<Triplet> triplets = generateTriplets();
 	elapsedTime.insertBreakpoint("genTriplets");
 	std::printf("Triplets generated in: %d [us] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("tplLoaded", true), elapsedTime.getTimeFromBeginning());
