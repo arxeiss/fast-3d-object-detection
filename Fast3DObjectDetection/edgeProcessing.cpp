@@ -5,6 +5,7 @@
 #include "distanceAndOrientation.h"
 #include "chamferScore.h"
 #include "loading.h"
+//#include "visualize.h"
 
 cv::Mat removeDiscriminatePoints_8u(cv::Mat &src_8u, cv::Mat &edge_8u) {
 	cv::Mat filtered_8u;
@@ -145,10 +146,20 @@ void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdg
 		}
 		std::sort(simmilarity.begin(), simmilarity.end(), compareDescChamferScore);
 
-		/*showResized("src",  templates[t].edges_8u, 3);
-		for (int f = 0; f < 10; f++)
+		// Show simmilar template
+		/*cv::Mat srcTmp;
+		templates[t].img_8u.copyTo(srcTmp);
+		cv::cvtColor(templates[t].img_8u, srcTmp, CV_GRAY2BGR);
+		drawEdgesToSource(srcTmp, templates[t].edges_8u, 0, 0, 1, 0.5, cv::Vec3b(0, 0, 255));
+		showResized("src",  srcTmp, 3);
+		for (int f = 0; f < 7; f++)
 		{
-		showResized(std::to_string(f)+"sim", templates[simmilarity[f].index].edges_8u, 3);
+			cv::Mat srcTmp;
+			templates[simmilarity[f].index].img_8u.copyTo(srcTmp);
+			cv::cvtColor(templates[simmilarity[f].index].img_8u, srcTmp, CV_GRAY2BGR);
+			drawEdgesToSource(srcTmp, templates[simmilarity[f].index].edges_8u, 0, 0, 1, 0.5, cv::Vec3b(0, 0, 255));
+			showResized(std::to_string(f)+"sim", srcTmp, 3);
+			std::printf("Simmilar %d. - index: %d\n", f + 1, simmilarity[f].index);
 		}
 		cv::waitKey();*/
 

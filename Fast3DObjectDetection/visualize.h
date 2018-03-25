@@ -68,7 +68,7 @@ inline void drawSlidingWindowToImage(cv::Mat &mat, int windowSize, int windowX, 
 	cv::rectangle(mat, cv::Rect(windowX, windowY, windowSize, windowSize), cv::Scalar(50, 50, 255 * colorMultiply));
 	if (str.length())
 	{
-		cv::putText(mat, str, cv::Point(windowX, windowY - 5), CV_FONT_HERSHEY_SIMPLEX, 0.35f, cv::Scalar(30, 200, 30), 1);
+		cv::putText(mat, str, cv::Point(windowX, windowY - 5), CV_AA, 0.35f, cv::Scalar(30, 200, 30), 1);
 	}
 }
 
@@ -96,7 +96,7 @@ inline void drawPoint_8uc3(cv::Mat &dst, int x, int y, cv::Vec3b color, int size
 }
 
 inline void showChamferScore(DetectionUnit &srcTemplate, DetectionUnit &comparingImage, float averageEdges) {
-
+	int scaleRatio = 6;
 	DetectionUnit srcTemplateUnit;
 	srcTemplate.img_8u.copyTo(srcTemplateUnit.img_8u);
 	prepareDetectionUnit(srcTemplateUnit, true, true, true);
@@ -106,14 +106,14 @@ inline void showChamferScore(DetectionUnit &srcTemplate, DetectionUnit &comparin
 	drawEdgesToSource(srcTemplate_8uc3, comparingImage.edges_8u);
 	drawEdgesToSource(srcTemplate_8uc3, srcTemplate.edges_8u, 0, 0, 1, 0.7, cv::Vec3b(0, 0, 255));
 
-	showResized("TPL vs window", srcTemplate_8uc3, 4);
+	showResized("TPL vs window", srcTemplate_8uc3, scaleRatio);
 
 	cv::Mat cmpImg8uc3;
-	cv::resize(comparingImage.edges_8u, cmpImg8uc3, cv::Size(), 4, 4, cv::INTER_AREA);
+	cv::resize(comparingImage.edges_8u, cmpImg8uc3, cv::Size(), scaleRatio, scaleRatio, cv::INTER_AREA);
 	cv::cvtColor(cmpImg8uc3, cmpImg8uc3, CV_GRAY2BGR);
-	//cmpImg8uc3 = (cmpImg8uc3 + cv::Scalar(255, 255, 255)) / 2.0f;
+	cmpImg8uc3 = (cmpImg8uc3 + cv::Scalar(255, 255, 255)) / 2.0f;
 	
-	cv::Mat tmpCmpImg_8uc3;
+	//cv::Mat tmpCmpImg_8uc3;
 
 	int edges = 0;
 	for (int x = 0; x < srcTemplate.edges_8u.cols; x++)
@@ -127,42 +127,48 @@ inline void showChamferScore(DetectionUnit &srcTemplate, DetectionUnit &comparin
 			//cmpImg8uc3.copyTo(tmpCmpImg_8uc3);
 
 			cv::Vec3b color = cv::Vec3b(0, 0, 255); // Red - is too far
-			float angleT = -100, angleI = -100, angleItmp = -100;
+			float angleT = -100, angleI = -100;
 			float distance = comparingImage.distanceTransform_32f.at<float>(y, x);
 			if (distance <= thetaD) {
 				angleT = getEdgeOrientation(srcTemplate.img_8u, x, y, true);
-				angleItmp = (distance == 0.0f) ?
-					getEdgeOrientation(comparingImage.img_8u, x, y, true) :
-					getEdgeOrientationFromDistanceTransform(comparingImage.distanceTransform_32f, x, y, true);
 				angleI = (distance == 0.0f) ?
 					getEdgeOrientation(comparingImage.img_8u, x, y, true) :
-					getEdgeOrientationFromDistanceTransform(srcTemplate.distanceTransform_32f, x, y, true);
-				if (abs(angleT - angleItmp) <= thetaPhi)
+					getEdgeOrientationFromDistanceTransform(comparingImage.distanceTransform_32f, x, y, true);
+				if (abs(angleT - angleI) <= thetaPhi)
 				{
 					color = cv::Vec3b(0, 255, 0); // Green is OK
-				}
-				else {
-					//color = cv::Vec3b(255, 0, 0); // Blue - only orientation is different
+					edges++;
+				}else {
+					color = cv::Vec3b(0, 151, 255); // Orange - only orientation is different
 				}
 			}
-			drawPoint_8uc3(cmpImg8uc3, x * 4, y * 4, color, 5);
+			drawPoint_8uc3(cmpImg8uc3, x * scaleRatio, y * scaleRatio, color, scaleRatio);
 
-			//drawPoint_8uc3(tmpCmpImg_8uc3, x * 4, y * 4, color, 5);
-			//cv::circle(tmpCmpImg_8uc3, cv::Point(x * 4, y * 4), thetaD * 4, cv::Scalar(125, 125, 125), 1);
+			//drawPoint_8uc3(tmpCmpImg_8uc3, x * scaleRatio, y * scaleRatio, color, 5);
+			//cv::circle(tmpCmpImg_8uc3, cv::Point(x, y) * scaleRatio, thetaD * scaleRatio, cv::Scalar(125, 125, 125), 1);
 			//int oriLineLength = 6;
 			//if (angleT > -100)
 			//{
-			//	cv::line(tmpCmpImg_8uc3, cv::Point(x * 4, y * 4), cv::Point((x - round(cos(angleT) * oriLineLength)) * 4, (y - round(sin(angleT) * oriLineLength)) * 4), cv::Scalar(0, 191, 178), 2); // Zluta
-			//	cv::line(tmpCmpImg_8uc3, cv::Point(x * 4, y * 4), cv::Point((x - round(cos(angleI) * oriLineLength)) * 4, (y - round(sin(angleI) * oriLineLength)) * 4), cv::Scalar(178, 191, 0), 2); // Modra
-			//	cv::line(tmpCmpImg_8uc3, cv::Point(x * 4, y * 4), cv::Point((x - round(cos(angleItmp) * oriLineLength)) * 4, (y - round(sin(angleItmp) * oriLineLength)) * 4), cv::Scalar(178, 0, 191), 2); // Ruzova
+			//	cv::line(tmpCmpImg_8uc3, cv::Point(x, y) * scaleRatio, cv::Point((x - round(cos(angleT) * oriLineLength)), (y - round(sin(angleT) * oriLineLength))) * scaleRatio, cv::Scalar(0, 191, 178), 2); // Zluta
+			//	cv::line(tmpCmpImg_8uc3, cv::Point(x, y) * scaleRatio, cv::Point((x - round(cos(angleI) * oriLineLength)), (y - round(sin(angleI) * oriLineLength))) * scaleRatio, cv::Scalar(178, 191, 0), 2); // Modra
 			//}
 			//cv::imshow("ChamferScore", tmpCmpImg_8uc3);
 			//cv::waitKey(0);
 		}
 	}
-	//float denominator = (lambda * (float)srcTemplate.edgesCount) + ((1 - lambda) * averageEdges);
-	//return (float)edges / denominator;
+	float denominator = (lambda * (float)srcTemplate.edgesCount) + ((1 - lambda) * averageEdges);
+	float chamferScore = (float)edges / denominator;
+	
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(5) << "Score: " << chamferScore;
+	cv::putText(cmpImg8uc3, ss.str(), cv::Point(1, 43) * scaleRatio, CV_AA, 0.36f, cv::Scalar(0, 0, 0), 1);
+	ss.str(""); ss.clear();
+	ss << "Edges: " << edges << "/" << srcTemplate.edgesCount;
+	cv::putText(cmpImg8uc3, ss.str(), cv::Point(1, 46) * scaleRatio, CV_AA, 0.36f, cv::Scalar(0, 0, 0), 1);
+
+	std::printf("Chamfer score: %2.4f - edges %d/%d", chamferScore, edges, srcTemplate.edgesCount);
 	cv::imshow("ChamferScore", cmpImg8uc3);
+
 	cv::waitKey();
 }
 
@@ -263,15 +269,15 @@ inline void visualizeTripletOnEdges(DetectionUnit &unit, Triplet &triplet, Tripl
 
 		std::stringstream ss;
 		ss << std::fixed << std::setprecision(2) << "d: " << tripletValues->d1 << " phi: " << tripletValues->phi1;
-		cv::putText(show, ss.str(), p1, CV_FONT_HERSHEY_SIMPLEX, 0.3f, cv::Scalar(0, 0, 200), 1);
+		cv::putText(show, ss.str(), p1, CV_AA, 0.3f, cv::Scalar(0, 0, 200), 1);
 		ss.str("");
 		ss.clear();
 		ss << std::fixed << std::setprecision(2) << "d: " << tripletValues->d2 << " phi: " << tripletValues->phi2;
-		cv::putText(show, ss.str(), p2, CV_FONT_HERSHEY_SIMPLEX, 0.3f, cv::Scalar(0, 170, 0), 1);
+		cv::putText(show, ss.str(), p2, CV_AA, 0.3f, cv::Scalar(0, 170, 0), 1);
 		ss.str("");
 		ss.clear();
 		ss << std::fixed << std::setprecision(2) << "d: " << tripletValues->d3 << " phi: " << tripletValues->phi3;
-		cv::putText(show, ss.str(), p3, CV_FONT_HERSHEY_SIMPLEX, 0.3f, cv::Scalar(200, 0, 0), 1);
+		cv::putText(show, ss.str(), p3, CV_AA, 0.3f, cv::Scalar(200, 0, 0), 1);
 	}
 
 	cv::imshow("Triplet on edges", show);
@@ -293,7 +299,7 @@ inline int testDetectedEdgesAndDistanceTransform() {
 			ss << std::fixed << std::setprecision(1) << dstTransform.at<float>(y, x);
 			cv::circle(dstTransform, cv::Point(x, y), 1, cv::Scalar(0.5));
 			cv::circle(dstTransformNorm, cv::Point(x, y), 1, cv::Scalar(0.5));
-			cv::putText(dstTransform, ss.str(), cv::Point(x + 2, y), CV_FONT_HERSHEY_SIMPLEX, 0.3, cv::Scalar(0.5));
+			cv::putText(dstTransform, ss.str(), cv::Point(x + 2, y), CV_AA, 0.3, cv::Scalar(0.5));
 		}
 	}
 	int x = 11, y = 15;
@@ -301,7 +307,7 @@ inline int testDetectedEdgesAndDistanceTransform() {
 	ss << std::fixed << std::setprecision(10) << dstTransform.at<float>(y, x);
 	cv::circle(dstTransform, cv::Point(x, y), 3, cv::Scalar(0.5));
 	cv::circle(dstTransformNorm, cv::Point(x, y), 3, cv::Scalar(0.5));
-	cv::putText(dstTransform, ss.str(), cv::Point(x + 2, y), CV_FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0.5));
+	cv::putText(dstTransform, ss.str(), cv::Point(x + 2, y), CV_AA, 0.5, cv::Scalar(0.5));
 
 	cv::imshow("distTransform", dstTransform);
 	cv::imshow("distTransformNorm", dstTransformNorm);
