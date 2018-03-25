@@ -111,7 +111,7 @@ cv::Mat removeNonStablePoints_8u(DetectionUnit &srcTemplate, std::vector<Detecti
 				if (distance > thetaD) {
 					continue;
 				}
-				float angleT = getEdgeOrientation(simmilarTemplates[s].img_8u, x, y, true);
+				float angleT = getEdgeOrientation(srcTemplate.img_8u, x, y, true);
 				float angleI = (distance == 0.0f) ?
 					getEdgeOrientation(simmilarTemplates[s].img_8u, x, y, true) :
 					getEdgeOrientationFromDistanceTransform(simmilarTemplates[s].distanceTransform_32f, x, y, true);

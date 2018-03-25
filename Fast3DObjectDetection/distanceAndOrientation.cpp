@@ -41,14 +41,16 @@ cv::Mat getDistanceTransform_32f(cv::Mat &src_8u) {
 
 // --------- edge distance and orientation -----------
 float getEdgeOrientation(cv::Mat &srcGray_8u, int x, int y, bool onlyPositive) {
-	if (x + 1 >= srcGray_8u.cols || x < 1 || y < 1 || y + 1 >= srcGray_8u.rows) {
-		return 0.0f;
-	}
+	int xStart = (x == 0 ? 1 : 0), // If edge is calculating - skip part of mask
+		xEnd = (x == srcGray_8u.cols - 1) ? 2 : 3, // If is edge on end of picture
+		yStart = (y == 0 ? 1 : 0),
+		yEnd = (y == srcGray_8u.rows) ? 2 : 3;
+
 	float sXVal = 0.0f;
 	float sYVal = 0.0f;
-	for (int mX = 0; mX < 3; mX++)
+	for (int mX = xStart; mX < xEnd; mX++)
 	{
-		for (int mY = 0; mY < 3; mY++)
+		for (int mY = yStart; mY < yEnd; mY++)
 		{
 			//float cVal = getPixelAsfloat(srcGray_8u, x + mX - 1, y + mY - 1);
 			float cVal = ((float)srcGray_8u.at<uchar>(y + mY - 1, x + mX - 1)) / 255.0f;
@@ -67,8 +69,9 @@ float getEdgeOrientation(cv::Mat &srcGray_8u, int x, int y, bool onlyPositive) {
 }
 
 float getEdgeOrientationFromDistanceTransform(cv::Mat &distTrans_32f, int x, int y, bool onlyPositive) {
+	int substract = (x > 0 && y > 0) ? 1 : -1;
 	float pointDistance = distTrans_32f.at<float>(y, x);
-	float angle = atan2(pointDistance - (float)distTrans_32f.at<float>(y - 1, x), pointDistance - (float)distTrans_32f.at<float>(y, x - 1));
+	float angle = atan2(pointDistance - (float)distTrans_32f.at<float>(y - substract, x), pointDistance - (float)distTrans_32f.at<float>(y, x - substract));
 	if (angle < 0 && onlyPositive)
 	{
 		angle += M_PI;

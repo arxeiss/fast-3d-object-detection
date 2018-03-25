@@ -20,7 +20,7 @@ float getOrientedChamferScore(DetectionUnit &srcTemplate, DetectionUnit &compari
 			float angleT = getEdgeOrientation(srcTemplate.img_8u, x, y, true);
 			float angleI = (distance == 0.0f) ?
 				getEdgeOrientation(comparingImage.img_8u, x, y, true) :
-				getEdgeOrientationFromDistanceTransform(srcTemplate.distanceTransform_32f, x, y, true);
+				getEdgeOrientationFromDistanceTransform(comparingImage.distanceTransform_32f, x, y, true);
 			if (abs(angleT - angleI) <= thetaPhi)
 			{
 				edges++;
