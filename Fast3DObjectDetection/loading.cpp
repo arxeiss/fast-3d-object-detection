@@ -218,7 +218,7 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 	if (minPhi != NULL) { *minPhi = minPhiTmp; }
 	if (maxPhi != NULL) { *maxPhi = maxPhiTmp; }
 
-	std::printf("Unique dsts:\n");
+	/*std::printf("Unique dsts:\n");
 	int i = 1;
 	for (std::map<float, int>::iterator it = dstTest.begin(); it != dstTest.end(); ++it, i++) {
 		std::printf("%6.3f - %6dx\t", it->first, it->second);
@@ -226,7 +226,7 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 		{
 			std::printf("\n");
 		}
-	}
+	}*/
 
 }
 
