@@ -10,6 +10,7 @@
 #include "TripletValues.h"
 
 #include "distanceAndOrientation.h"
+#include "loading.h"
 
 inline void showResized(cv::String label, cv::Mat img, int ratio, int waitToDraw = -1) {
 	cv::Mat toShow;
@@ -27,8 +28,7 @@ inline void showResized(cv::String label, cv::Mat img, int ratio, int waitToDraw
 	}
 }
 
-// Not used anymore
-inline void drawEdgesToSource(cv::Mat &src_8u3c, cv::Mat &edges_8u, int xOffset, int yOffset, float scaleRatio, float edgeRatio = 0.99) {
+inline void drawEdgesToSource(cv::Mat &src_8u3c, cv::Mat &edges_8u, int xOffset = 0, int yOffset = 0, float scaleRatio = 1, float edgeRatio = 0.99, cv::Vec3b color = cv::Vec3b(0,255,0)) {
 	
 	for (int x = 0; x < edges_8u.cols; x++)
 	{
@@ -36,7 +36,7 @@ inline void drawEdgesToSource(cv::Mat &src_8u3c, cv::Mat &edges_8u, int xOffset,
 		{
 			if (edges_8u.at<uchar>(y, x) == 0) {
 				int rX = x * scaleRatio + xOffset, rY = y * scaleRatio + yOffset;
-				src_8u3c.at<cv::Vec3b>(rY, rX) = src_8u3c.at<cv::Vec3b>(rY, rX) * (1 - edgeRatio) + cv::Vec3b(0, 255, 0) * edgeRatio;
+				src_8u3c.at<cv::Vec3b>(rY, rX) = src_8u3c.at<cv::Vec3b>(rY, rX) * (1 - edgeRatio) + color * edgeRatio;
 			}
 		}
 	}
@@ -78,6 +78,92 @@ inline int showSlidingWindowInImage(cv::Mat &img, int windowSize, int windowX, i
 	drawSlidingWindowToImage(ret, windowSize, windowX, windowY);
 	cv::imshow("Sliding window", ret);
 	return cv::waitKey(delay);
+}
+
+inline void drawPoint_8uc3(cv::Mat &dst, int x, int y, cv::Vec3b color, int size = 2) {
+	int minus = floor((float)(size - 1) / 2.0f),
+		plus = ceil((float)(size - 1) / 2.0f);
+	for (int iX = x - minus; iX <= x + plus; iX++)
+	{
+		for (int iY = y - minus; iY <= y + plus; iY++)
+		{
+			if (iX >= 0 && iY >= 0 && iX < dst.cols && iY < dst.rows)
+			{
+				dst.at<cv::Vec3b>(iY, iX) = color;
+			}
+		}
+	}
+}
+
+inline void showChamferScore(DetectionUnit &srcTemplate, DetectionUnit &comparingImage, float averageEdges) {
+
+	DetectionUnit srcTemplateUnit;
+	srcTemplate.img_8u.copyTo(srcTemplateUnit.img_8u);
+	prepareDetectionUnit(srcTemplateUnit, true, true, true);
+	cv::Mat srcTemplate_8uc3;
+	cv::cvtColor(srcTemplateUnit.img_8u, srcTemplate_8uc3, CV_GRAY2BGR);
+	
+	drawEdgesToSource(srcTemplate_8uc3, comparingImage.edges_8u);
+	drawEdgesToSource(srcTemplate_8uc3, srcTemplate.edges_8u, 0, 0, 1, 0.7, cv::Vec3b(0, 0, 255));
+
+	showResized("TPL vs window", srcTemplate_8uc3, 4);
+
+	cv::Mat cmpImg8uc3;
+	cv::resize(comparingImage.edges_8u, cmpImg8uc3, cv::Size(), 4, 4, cv::INTER_AREA);
+	cv::cvtColor(cmpImg8uc3, cmpImg8uc3, CV_GRAY2BGR);
+	//cmpImg8uc3 = (cmpImg8uc3 + cv::Scalar(255, 255, 255)) / 2.0f;
+	
+	cv::Mat tmpCmpImg_8uc3;
+
+	int edges = 0;
+	for (int x = 0; x < srcTemplate.edges_8u.cols; x++)
+	{
+		for (int y = 0; y < srcTemplate.edges_8u.rows; y++)
+		{
+			if (srcTemplate.edges_8u.at<uchar>(y, x) > 0)
+			{
+				continue;
+			}
+			//cmpImg8uc3.copyTo(tmpCmpImg_8uc3);
+
+			cv::Vec3b color = cv::Vec3b(0, 0, 255); // Red - is too far
+			float angleT = -100, angleI = -100, angleItmp = -100;
+			float distance = comparingImage.distanceTransform_32f.at<float>(y, x);
+			if (distance <= thetaD) {
+				angleT = getEdgeOrientation(srcTemplate.img_8u, x, y, true);
+				angleItmp = (distance == 0.0f) ?
+					getEdgeOrientation(comparingImage.img_8u, x, y, true) :
+					getEdgeOrientationFromDistanceTransform(comparingImage.distanceTransform_32f, x, y, true);
+				angleI = (distance == 0.0f) ?
+					getEdgeOrientation(comparingImage.img_8u, x, y, true) :
+					getEdgeOrientationFromDistanceTransform(srcTemplate.distanceTransform_32f, x, y, true);
+				if (abs(angleT - angleItmp) <= thetaPhi)
+				{
+					color = cv::Vec3b(0, 255, 0); // Green is OK
+				}
+				else {
+					//color = cv::Vec3b(255, 0, 0); // Blue - only orientation is different
+				}
+			}
+			drawPoint_8uc3(cmpImg8uc3, x * 4, y * 4, color, 5);
+
+			//drawPoint_8uc3(tmpCmpImg_8uc3, x * 4, y * 4, color, 5);
+			//cv::circle(tmpCmpImg_8uc3, cv::Point(x * 4, y * 4), thetaD * 4, cv::Scalar(125, 125, 125), 1);
+			//int oriLineLength = 6;
+			//if (angleT > -100)
+			//{
+			//	cv::line(tmpCmpImg_8uc3, cv::Point(x * 4, y * 4), cv::Point((x - round(cos(angleT) * oriLineLength)) * 4, (y - round(sin(angleT) * oriLineLength)) * 4), cv::Scalar(0, 191, 178), 2); // Zluta
+			//	cv::line(tmpCmpImg_8uc3, cv::Point(x * 4, y * 4), cv::Point((x - round(cos(angleI) * oriLineLength)) * 4, (y - round(sin(angleI) * oriLineLength)) * 4), cv::Scalar(178, 191, 0), 2); // Modra
+			//	cv::line(tmpCmpImg_8uc3, cv::Point(x * 4, y * 4), cv::Point((x - round(cos(angleItmp) * oriLineLength)) * 4, (y - round(sin(angleItmp) * oriLineLength)) * 4), cv::Scalar(178, 0, 191), 2); // Ruzova
+			//}
+			//cv::imshow("ChamferScore", tmpCmpImg_8uc3);
+			//cv::waitKey(0);
+		}
+	}
+	//float denominator = (lambda * (float)srcTemplate.edgesCount) + ((1 - lambda) * averageEdges);
+	//return (float)edges / denominator;
+	cv::imshow("ChamferScore", cmpImg8uc3);
+	cv::waitKey();
 }
 
 /// TEST func
