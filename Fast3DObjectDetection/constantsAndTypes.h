@@ -11,6 +11,11 @@
 #include "QuantizedTripletValues.h"
 #include "TemplateIndex.h"
 
+// 0 - auto by quantile
+// 1 - hardcoded
+// 2 - all bins same range
+#define HASH_SETTINGS_DIST_BINS_METHOD 0
+
 // CONSTANTS
 const cv::Size edgeDetector_BlurSize(3, 3);
 const int canny_LowThreshold = 45, canny_Ratio = 5, canny_KernelSize = 3;

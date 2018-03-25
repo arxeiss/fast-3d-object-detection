@@ -1,6 +1,10 @@
 #pragma once
 
 #include <vector>
+#ifndef HASH_SETTINGS_DIST_BINS_METHOD
+#define HASH_SETTINGS_DIST_BINS_METHOD 0
+#endif // !HASH_SETTINGS_DIST_BINS_METHOD
+
 
 class HashSettings
 {
@@ -26,6 +30,7 @@ public:
 	}
 
 	int getDistanceBin(float distance) {
+#if HASH_SETTINGS_DIST_BINS_METHOD == 0
 		if (this->dBinsRange.size() > 0)
 		{
 			int i = 0;
@@ -38,7 +43,8 @@ public:
 			return i;
 		}
 		return 4;
-		/*if (distance < 1.2f)
+#elif HASH_SETTINGS_DIST_BINS_METHOD == 1
+		if (distance < 1.2f)
 		{
 			return 0;
 		}
@@ -51,13 +57,14 @@ public:
 			return 2;
 		}
 		return 3;
-
-		/*int bin = (distance - this->minD) / this->dNormDivider;
+#elif HASH_SETTINGS_DIST_BINS_METHOD == 2
+		int bin = (distance - this->minD) / this->dNormDivider;
 		if (bin >= this->dBins)
 		{
 			return this->dBins - 1;
 		}
-		return bin;*/
+		return bin;
+#endif
 	}
 
 	int getOrientationBin(float orientation) {
