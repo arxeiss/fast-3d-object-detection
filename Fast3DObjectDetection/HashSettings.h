@@ -31,28 +31,28 @@ public:
 			int i = 0;
 			for (; i < this->dBinsRange.size(); i++)
 			{
-				if (distance < this->dBinsRange[i]) {
+				if (distance <= this->dBinsRange[i]) {
 					return i;
 				}
 			}
 			return i;
 		}
 		return 4;
-		/*if (distance < 0.955002f)
+		/*if (distance < 1.2f)
 		{
 			return 0;
 		}
-		if (distance < 3.279297f)
+		if (distance < 3.4f)
 		{
 			return 1;
 		}
-		if (distance < 6.432175f)
+		if (distance < 6.5f)
 		{
 			return 2;
 		}
 		return 3;
 
-		int bin = (distance - this->minD) / this->dNormDivider;
+		/*int bin = (distance - this->minD) / this->dNormDivider;
 		if (bin >= this->dBins)
 		{
 			return this->dBins - 1;
