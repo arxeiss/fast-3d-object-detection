@@ -9,7 +9,7 @@
 
 
 // detect edges, distance transform, count edges
-void prepareDetectionUnit(DetectionUnit &dt, bool renewEdges, bool renewDistTransform, bool recountEdges) {
+void prepareDetectionUnit(DetectionUnit &dt, bool recountEdges, bool renewEdges, bool renewDistTransform) {
 	if (dt.edges_8u.empty() || renewEdges)
 	{
 		dt.edges_8u = getDetectedEdges_8u(dt.img_8u);

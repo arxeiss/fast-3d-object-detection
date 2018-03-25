@@ -176,7 +176,7 @@ void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdg
 #pragma omp parallel for
 	for (int t = 0; t < templates.size(); t++) {
 		templates[t].edges_8u = removedEdges[t];
-		prepareDetectionUnit(templates[t], false, false, true);
+		prepareDetectionUnit(templates[t], true);
 	}
 }
 

@@ -7,7 +7,7 @@
 #include "TripletValues.h"
 #include "HashSettings.h"
 
-void prepareDetectionUnit(DetectionUnit &dt, bool renewEdges = false, bool renewDistTransform = false, bool recountEdges = false);
+void prepareDetectionUnit(DetectionUnit &dt, bool recountEdges = false, bool renewEdges = false, bool renewDistTransform = false);
 
 std::vector<Triplet> generateTriplets();
 
