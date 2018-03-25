@@ -17,9 +17,9 @@ public:
 	}
 
 	bool operator==(const Triplet&comp) const {
-		return this->p2 == comp.p2 &&
-			(( this->p1 == comp.p1 && this->p3 == comp.p3 ) || 
-			(this->p3 == comp.p1 && this->p1 == comp.p3));
+		return  (this->p1 == comp.p1 || this->p1 == comp.p2 || this->p1 == comp.p3) &&
+				(this->p2 == comp.p1 || this->p2 == comp.p2 || this->p2 == comp.p3) &&
+				(this->p3 == comp.p1 || this->p3 == comp.p2 || this->p3 == comp.p3);
 	}
 	//~Triplet();
 };
