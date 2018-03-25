@@ -414,6 +414,8 @@ bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::
 			edges->release();
 			edges->create(rows, cols, type);
 			ifsData.read((char*)(edges->data), edges->elemSize() * edges->total());
+			// Recount edges
+			prepareDetectionUnit(templates[f][t], true);
 		}
 	}
 	ifsData.read((char*)(&averageEdges), sizeof(float));

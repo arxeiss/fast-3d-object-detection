@@ -29,6 +29,7 @@
 #include "loading.h"
 #include "edgeProcessing.h"
 #include "matching.h"
+#include "visualize.h"
 
 /*
 NOTES:
@@ -49,6 +50,7 @@ void prepareAndSaveData() {
 	std::printf("%d templates loaded in: %d [ms]\n", templatesLoaded, elapsedTime.getTimeFromBeginning());
 
 	float averageEdges = countAverageEdgesAcrossTemplates(templates);
+	showChamferScore(templates[0][0], templates[0][1], averageEdges);
 	std::vector<Triplet> triplets = generateTriplets();
 	elapsedTime.insertBreakpoint("genTriplets");
 	std::printf("Triplets generated in: %d [us] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("tplLoaded", true), elapsedTime.getTimeFromBeginning());
@@ -119,13 +121,6 @@ void runMatching() {
 
 	elapsedTime.insertBreakpoint("fileLoaded");
 	std::printf("File loaded in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBeginning(), elapsedTime.getTimeFromBeginning());
-	
-	// sliding Window
-	// ud�lat v��ez, p�ipravit DetectionUnit
-	// Pro nalezen� shodn�ch �ablon je pot�eba QuantizedTripletValues, ty se z�skaj� z HashSettings
-	// pomoc� spo�ten�ch hodnot z triplet�
-	// 
-	// TemplateIndex pot�ebuje hash kv�li unordered_map (kl�� bude TemplateIndex a hodnota bude po�et v�skyt�)
 
 	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
 
