@@ -12,7 +12,7 @@
 #include "distanceAndOrientation.h"
 #include "loading.h"
 
-inline void showResized(cv::String label, cv::Mat img, float ratio, int waitToDraw = -1) {
+inline void showResized(cv::String label, cv::Mat& img, float ratio, int waitToDraw = -1) {
 	cv::Mat toShow;
 	if (ratio > 1)
 	{
