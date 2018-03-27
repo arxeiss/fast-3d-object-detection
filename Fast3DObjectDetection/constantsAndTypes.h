@@ -18,7 +18,7 @@
 
 // CONSTANTS
 const cv::Size edgeDetector_BlurSize(3, 3);
-const int canny_LowThreshold = 45, canny_Ratio = 5, canny_KernelSize = 3;
+const int canny_LowThreshold = 45, canny_Ratio = 3, canny_KernelSize = 3;
 const int distanceTransform_MaskSize = 3;
 
 const float thetaD = 3.1;			// Used in removing edges and computing chamfer score
