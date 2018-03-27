@@ -12,7 +12,7 @@
 #include "distanceAndOrientation.h"
 #include "loading.h"
 
-inline void showResized(cv::String label, cv::Mat img, int ratio, int waitToDraw = -1) {
+inline void showResized(cv::String label, cv::Mat img, float ratio, int waitToDraw = -1) {
 	cv::Mat toShow;
 	if (ratio > 1)
 	{
@@ -40,6 +40,14 @@ inline void drawEdgesToSource(cv::Mat &src_8u3c, cv::Mat &edges_8u, int xOffset 
 			}
 		}
 	}
+}
+
+inline void getEdgesAndDrawFullSizeToSource(cv::Mat &src_8u3c, cv::Mat &src_8u, int xOffset = 0, int yOffset = 0, float scaleRatio = 1, float edgeRatio = 0.99, cv::Vec3b color = cv::Vec3b(0, 255, 0)) {
+	cv::Mat edges_8u = getDetectedEdges_8u(src_8u);
+	cv::resize(edges_8u, edges_8u, cv::Size(), scaleRatio, scaleRatio);
+	cv::threshold(edges_8u, edges_8u, 100, 255, CV_THRESH_BINARY);
+	
+	drawEdgesToSource(src_8u3c, edges_8u, xOffset, yOffset, 1, edgeRatio, color);
 }
 
 inline int showDetectionUnit(DetectionUnit &unit, int delay = 0, std::string windowName = "Detection unit") {

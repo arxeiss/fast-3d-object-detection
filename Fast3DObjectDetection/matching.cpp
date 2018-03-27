@@ -57,7 +57,12 @@ void matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettin
 			std::stringstream ss;
 			ss << "F: " << candidates[i].tplIndex.folderIndex << " T: " << candidates[i].tplIndex.templateIndex;
 			drawSlidingWindowToImage(NMS, candidates[i].rect.width, candidates[i].rect.x, candidates[i].rect.y, candidates[i].chamferScore * 4, ss.str());
-			drawEdgesToSource(NMS, templates[candidates[i].tplIndex.folderIndex][candidates[i].tplIndex.templateIndex].edges_8u, candidates[i].rect.x, candidates[i].rect.y, (float)candidates[i].rect.width / (float)slidingWindowSize);
+			TemplateIndex &tplIndex = candidates[i].tplIndex;
+			getEdgesAndDrawFullSizeToSource(NMS,
+				templates[tplIndex.folderIndex][tplIndex.templateIndex].img_8u,
+				candidates[i].rect.x,
+				candidates[i].rect.y,
+				(float)candidates[i].rect.width / (float)slidingWindowSize);
 		}
 	}
 	std::printf("Total windows after NMS: %d\n", windows);
