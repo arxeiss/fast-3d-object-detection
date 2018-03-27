@@ -76,6 +76,19 @@ std::vector<Triplet> generateTriplets()
 	return triplets;
 }
 
+void thresholdToValue(cv::Mat &dst_8u, uchar noUnderThreshold) {
+	for (int x = 0; x < dst_8u.cols; x++)
+	{
+		for (int y = 0; y < dst_8u.rows; y++)
+		{
+			if (dst_8u.at<uchar>(y, x) < noUnderThreshold)
+			{
+				dst_8u.at<uchar>(y, x) = noUnderThreshold;
+			}
+		}
+	}
+}
+
 int loadAllTemplates(FolderTemplateList &templates) {
 	std::string folders[] = {
 		"images/CMP-8objs/train-opt2/0-block/",
@@ -103,6 +116,7 @@ int loadAllTemplates(FolderTemplateList &templates) {
 			std::string templateName = std::to_string(t);
 			templateName.insert(templateName.begin(), 5 - templateName.size(), '0');
 			unit.img_8u = cv::imread(folders[f] + "template_" + templateName + ".png", CV_LOAD_IMAGE_GRAYSCALE);
+			thresholdToValue(unit.img_8u, minBGColorThreshold);
 			prepareDetectionUnit(unit);
 			templates[f][t - 1] = unit;
 #pragma omp critical

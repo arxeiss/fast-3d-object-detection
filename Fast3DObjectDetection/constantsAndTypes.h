@@ -29,6 +29,7 @@ const float removePixelRatio = 0.4f;// How many percent of edges to remove
 const int kTpl = 4;					// How many templates are compared to current to remove non stable edges
 const int thetaV = 4;				// How many triplets must have same template index to keep it as candidate
 const float minAvgEdgesRatio = 0.5; // Min averages to keep candidate (minAvgEdgesRatio * averageEdges)
+const int minBGColorThreshold = 37; // Minimal uchar value on background in loaded templates
 
 // Triplets
 const int tripletsAmount = 50;
