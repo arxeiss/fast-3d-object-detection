@@ -44,7 +44,7 @@ float getEdgeOrientation(cv::Mat &srcGray_8u, int x, int y, bool onlyPositive) {
 	int xStart = (x == 0 ? 1 : 0), // If edge is calculating - skip part of mask
 		xEnd = (x == srcGray_8u.cols - 1) ? 2 : 3, // If is edge on end of picture
 		yStart = (y == 0 ? 1 : 0),
-		yEnd = (y == srcGray_8u.rows) ? 2 : 3;
+		yEnd = (y == srcGray_8u.rows - 1) ? 2 : 3;
 
 	float sXVal = 0.0f;
 	float sYVal = 0.0f;
