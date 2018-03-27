@@ -134,6 +134,36 @@ cv::Mat loadTestImage_8u(int imageIndex) {
 	return cv::imread("images/CMP-8objs/test/test_" + imageIndexStr + ".jpg", CV_LOAD_IMAGE_GRAYSCALE);
 }
 
+int getFolderIndexByName(std::string name) {
+	if (name == "bridge") { return 1; }
+	if (name == "cup") { return 2; }
+	if (name == "driver") { return 3; }
+	if (name == "eye") { return 4; }
+	if (name == "lid") { return 5; }
+	if (name == "screw") { return 6; }
+	if (name == "whiteblock") { return 7; }
+	return 0;
+}
+
+void loadGroundTruthData(std::vector<GroundTruth> &groundTruth, int imageIndex) {
+	std::string gtPath = (imageIndex < 10 ? "0" : "") + std::to_string(imageIndex) + ".gt";	
+	std::ifstream gtData("images/CMP-8objs/test/test_" + gtPath);
+
+	if (!gtData.is_open()) {
+		std::printf("!!! - Error, cannot open a file %s for reading\n", gtPath);
+		return;
+	}
+
+	std::string objectName;
+	int xTL, yTL, width, height;
+	while (gtData >> objectName >> xTL >> yTL >> width >> height)
+	{
+		if (objectName.length() > 0) {
+			groundTruth.push_back(GroundTruth(xTL, yTL, xTL + width, yTL + height, getFolderIndexByName(objectName)));
+		}
+	}
+}
+
 DetectionUnit getDetectionUnitByROI(cv::Mat &img_8u, int x, int y, int roiSize) {
 	DetectionUnit unit{};
 	unit.img_8u = img_8u(cv::Rect(x, y, roiSize, roiSize));

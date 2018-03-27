@@ -37,11 +37,12 @@ const int pointsInRowCol = 6;
 const int pointsEdgeOffset = 4;
 const int pointsDistance = 8;
 
-// Sliding window and scale pyramid
+// Sliding window, scale pyramid and Ground Truth
 const int slidingWindowSize = 48; //Same size as template
 const int slidingWindowStep = 3;
 const float scalePyramidStep = 1.2;
 const float NMSMinOverlap = 0.3f;
+const float GTMinOverlap = 0.5f;
 
 // Set max to 8, otherwise change hashing for QuantizedTripletValues
 const int distanceBins = 4;

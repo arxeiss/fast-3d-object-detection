@@ -6,7 +6,7 @@
 #include "TimeMeasuring.h"
 #include "chamferScore.h"
 
-void matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges) {
+F1Score matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, std::vector<GroundTruth> groundTruth, bool disableVisualisation) {
 	
 	cv::Mat toDraw;
 
@@ -19,11 +19,12 @@ void matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettin
 	//for (int i = 0; i < 9; i++)
 	{
 		cv::Mat sizedScene;
-		printf("\n\n## SCALE PYRAMID - step %d ##\n", i);
+		printf("Scale pyramid - step %d", i);
+		TimeMeasuring tm(true);
 		float scaleRatio = fastPow(scalePyramidStep, i);
 		cv::resize(testImg_8u, sizedScene, cv::Size(round(testImg_8u.cols / scaleRatio), round(testImg_8u.rows / scaleRatio)));		
 		matchInImageWithSlidingWindow(sizedScene, candidates, templates, hashSettings, triplets, hashTable, averageEdges, scaleRatio);
-
+		printf(" => in %d [ms]\n", tm.getTimeFromBeginning());
 		/*testImg_8u.copyTo(toDraw);
 		for (int i = 0; i < candidates.size(); i++)
 		{
@@ -32,50 +33,72 @@ void matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettin
 		cv::imshow("Possible candidates", toDraw);
 		cv::waitKey();*/
 	}
-	std::printf("\n\n\nTotal matching time: %d [ms]\n", tm.getTimeFromBeginning());
-	testImg_8u.copyTo(toDraw);
-	for (int i = 0; i < candidates.size(); i++)
+	std::printf("\nTotal matching time: %d [ms]\n", tm.getTimeFromBeginning());
+	if (!disableVisualisation)
 	{
-		drawSlidingWindowToImage(toDraw, candidates[i].rect.width, candidates[i].rect.x, candidates[i].rect.y, candidates[i].chamferScore * 4);
+		testImg_8u.copyTo(toDraw);
+		for (int i = 0; i < candidates.size(); i++)
+		{
+			drawSlidingWindowToImage(toDraw, candidates[i].rect.width, candidates[i].rect.x, candidates[i].rect.y, candidates[i].chamferScore * 4);
+		}
+		cv::imshow("Possible candidates", toDraw);
 	}
-	std::printf("Total windows: %d\n", candidates.size());
-	cv::imshow("Possible candidates", toDraw);
+	std::printf("Total windows: %d\n", candidates.size());	
 
 	tm.insertBreakpoint("nms");
 	std::sort(candidates.begin(), candidates.end());
 	nonMaximaSupression(candidates);
 	std::printf("NMS time: %d [us]\n", tm.getTimeFromBreakpoint("nms", true));
+
+	F1Score imageScore;
+	std::sort(groundTruth.begin(), groundTruth.end());
 	
 	cv::Mat NMS;
-	testImg_8u.copyTo(NMS);
+	if (!disableVisualisation)
+	{
+		testImg_8u.copyTo(NMS);
+	}
 	int windows = 0;
 	for (int i = 0; i < candidates.size(); i++)
 	{
 		if (candidates[i].active)
 		{
 			windows++;
-			std::stringstream ss;
-			ss << "F: " << candidates[i].tplIndex.folderIndex << " T: " << candidates[i].tplIndex.templateIndex;
-			drawSlidingWindowToImage(NMS, candidates[i].rect.width, candidates[i].rect.x, candidates[i].rect.y, candidates[i].chamferScore * 4, ss.str());
-			TemplateIndex &tplIndex = candidates[i].tplIndex;
-			getEdgesAndDrawFullSizeToSource(NMS,
-				templates[tplIndex.folderIndex][tplIndex.templateIndex].img_8u,
-				candidates[i].rect.x,
-				candidates[i].rect.y,
-				(float)candidates[i].rect.width / (float)slidingWindowSize);
+
+			int groundTruthI = solveBinarySlacification(candidates[i], groundTruth, imageScore);
+			if (groundTruthI >= 0) {
+				drawWindowToImage(NMS, groundTruth[groundTruthI].rect, cv::Scalar(0, 255, 0));
+			}
+
+			if (!disableVisualisation)
+			{
+				std::stringstream ss;
+				ss << "F: " << candidates[i].tplIndex.folderIndex << " T: " << candidates[i].tplIndex.templateIndex;
+				drawSlidingWindowToImage(NMS, candidates[i].rect.width, candidates[i].rect.x, candidates[i].rect.y, candidates[i].chamferScore * 4, ss.str());
+				TemplateIndex &tplIndex = candidates[i].tplIndex;
+				getEdgesAndDrawFullSizeToSource(NMS,
+					templates[tplIndex.folderIndex][tplIndex.templateIndex].img_8u,
+					candidates[i].rect.x,
+					candidates[i].rect.y,
+					(float)candidates[i].rect.width / (float)slidingWindowSize);
+			}
 		}
 	}
 	std::printf("Total windows after NMS: %d\n", windows);
-	cv::imshow("Detection", NMS);
-	cv::waitKey();
+
+	std::printf("# F1 %2.3f (Precision %1.4f / Recal: %1.4f) - TP: %2d, FP: %2d, FN: %2d\n",
+		imageScore.getF1Score(true), imageScore.getPrecision(), imageScore.getRecall(),
+		imageScore.truePositive, imageScore.falsePositive, imageScore.falseNegative);
+	if (!disableVisualisation) {
+		cv::imshow("Detection", NMS);
+		cv::waitKey();
+	}
+	return imageScore;
 }
 
 void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &candidates, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, float sceneScaleRatio) {
 	int maxX = scene_8u.cols - slidingWindowSize + 1;
 	int maxY = scene_8u.rows - slidingWindowSize + 1;
-
-	TimeMeasuring tm;
-	tm.startMeasuring();
 
 #pragma omp parallel for
 	for (int x = 0; x < maxX; x += slidingWindowStep)
@@ -90,7 +113,6 @@ void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &ca
 			}
 		}
 	}
-	std::printf("Matching in %d [ms]", tm.getTimeFromBeginning());
 }
 
 Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, int x, int y, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, float sceneScaleRatio) {
@@ -133,6 +155,30 @@ Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, int x, int y, FolderTem
 			bestChamferScore);
 	}
 	return Candidate();
+}
+
+int solveBinarySlacification(Candidate &candidate, std::vector<GroundTruth> &grounTruth, F1Score &f1score) {
+	F1Score score;
+	for (int i = 0; i < grounTruth.size(); i++)
+	{	
+		if (grounTruth[i].percentageOverlap(candidate) >= GTMinOverlap)
+		{
+			if (candidate.folderIndex == grounTruth[i].folderIndex)
+			{
+				f1score.truePositive++;
+			}
+			else {
+				f1score.falseNegative++;
+			}
+			return i;
+		}
+		else if (candidate.rect.x + candidate.rect.width <= grounTruth[i].rect.x)
+		{
+			break;
+		}
+	}
+	f1score.falsePositive++;
+	return -1;
 }
 
 void nonMaximaSupression(std::vector<Candidate> &candidates) {

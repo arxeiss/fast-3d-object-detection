@@ -69,6 +69,12 @@
     <ClInclude Include="Candidate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GroundTruth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F1Score.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fast3DObjectDetection.cpp">

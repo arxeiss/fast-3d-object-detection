@@ -121,6 +121,8 @@
     <ClInclude Include="DetectionUnit.h" />
     <ClInclude Include="distanceAndOrientation.h" />
     <ClInclude Include="edgeProcessing.h" />
+    <ClInclude Include="F1Score.h" />
+    <ClInclude Include="GroundTruth.h" />
     <ClInclude Include="HashSettings.h" />
     <ClInclude Include="loading.h" />
     <ClInclude Include="matching.h" />

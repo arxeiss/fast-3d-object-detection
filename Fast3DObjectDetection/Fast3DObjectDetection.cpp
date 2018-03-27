@@ -22,6 +22,7 @@
 #include "QuantizedTripletValues.h"
 #include "HashSettings.h"
 #include "TimeMeasuring.h"
+#include "F1Score.h"
 
 #include "constantsAndTypes.h"
 
@@ -102,7 +103,7 @@ void prepareAndSaveData() {
 	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
 }
 
-void runMatching() {
+void runMatching(bool disableVisualisation = false) {
 
 	TimeMeasuring elapsedTime(true);
 
@@ -123,19 +124,28 @@ void runMatching() {
 	std::printf("File loaded in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBeginning(), elapsedTime.getTimeFromBeginning());
 
 	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
+	elapsedTime.insertBreakpoint("full-matching");
 
+	F1Score total;
 	for (int i = 1; i <= 60; i++)
 	{
-		matchInImage(loadTestImage_8u(i), templates, hashSettings, triplets, hashTable, averageEdges);
+		std::printf("\n#####################\n# Scene %d:\n", i);
+		std::vector<GroundTruth> groundTruth;
+		loadGroundTruthData(groundTruth, i);
+		total += matchInImage(loadTestImage_8u(i), templates, hashSettings, triplets, hashTable, averageEdges, groundTruth, disableVisualisation);
 	}
+	std::printf("\n\n#####################\n\nTotal F1 %2.5f (Precision %1.4f / Recal: %1.4f)\nTP: %2d, FP: %2d, FN: %2d\n",
+		total.getF1Score(true), total.getPrecision(), total.getRecall(),
+		total.truePositive, total.falsePositive, total.falseNegative);
+	std::printf("All scenes processed in %3.2f [s]", (float)elapsedTime.getTimeFromBreakpoint("full-matching") / 1000.0f);
 }
 
 int main()
 {
-	
 	std::cout << "Insert index of action to run:\n";
 	std::cout << "\t1. Prepare data\n";
 	std::cout << "\t2. Run matching\n";
+	std::cout << "\t3. Run matching without visualization\n";
 
 	int algo;
 	std::cin >> algo;
@@ -146,9 +156,13 @@ int main()
 	{
 	case 1:
 		prepareAndSaveData();
+		runMatching(true);
 		break;
 	case 2:
 		runMatching();
+		break;
+	case 3:
+		runMatching(true);
 		break;
 	default:
 		std::cout << "Invalid action";
