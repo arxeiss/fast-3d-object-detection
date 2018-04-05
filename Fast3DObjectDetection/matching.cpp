@@ -80,7 +80,7 @@ F1Score matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSet
 					templates[tplIndex.folderIndex][tplIndex.templateIndex].img_8u,
 					candidates[i].rect.x,
 					candidates[i].rect.y,
-					(float)candidates[i].rect.width / (float)slidingWindowSize);
+					(float)candidates[i].rect.width / (float)slidingWindowSize,1, cv::Vec3b(0,0,255));
 			}
 		}
 	}
