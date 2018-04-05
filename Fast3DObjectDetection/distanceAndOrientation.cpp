@@ -7,10 +7,9 @@
 cv::Mat getDetectedEdges_8u(cv::Mat &src_8u) {
 	cv::Mat detected_edges_8u, dst;
 
-	/// Reduce noise with a kernel 3x3
-	blur(src_8u, detected_edges_8u, edgeDetector_BlurSize);
-	/// Canny detector - need 8U matrix
-	cv::Canny(detected_edges_8u, detected_edges_8u, canny_LowThreshold, canny_LowThreshold*canny_Ratio, canny_KernelSize);
+	// Image src_8u is already blurred
+	// Canny detector - need 8U matrix
+	cv::Canny(src_8u, detected_edges_8u, canny_LowThreshold, canny_LowThreshold*canny_Ratio, canny_KernelSize);
 
 	/// Using Canny's output as a mask, we display our result
 	// Clear img

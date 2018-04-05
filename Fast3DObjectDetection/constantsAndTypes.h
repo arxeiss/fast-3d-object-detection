@@ -17,7 +17,7 @@
 #define HASH_SETTINGS_DIST_BINS_METHOD 0
 
 // CONSTANTS
-const cv::Size edgeDetector_BlurSize(3, 3);
+const cv::Size edgeDetector_BlurSize(5, 5);
 const int canny_LowThreshold = 45, canny_Ratio = 3, canny_KernelSize = 3;
 const int distanceTransform_MaskSize = 3;
 

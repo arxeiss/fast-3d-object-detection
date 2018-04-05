@@ -66,12 +66,13 @@ F1Score matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSet
 			windows++;
 
 			int groundTruthI = solveBinarySlacification(candidates[i], groundTruth, imageScore);
-			if (groundTruthI >= 0) {
-				drawWindowToImage(NMS, groundTruth[groundTruthI].rect, cv::Scalar(0, 255, 0));
-			}
 
 			if (!disableVisualisation)
 			{
+				if (groundTruthI >= 0) {
+					drawWindowToImage(NMS, groundTruth[groundTruthI].rect, cv::Scalar(0, 255, 0));
+				}
+
 				std::stringstream ss;
 				ss << "F: " << candidates[i].tplIndex.folderIndex << " T: " << candidates[i].tplIndex.templateIndex;
 				drawSlidingWindowToImage(NMS, candidates[i].rect.width, candidates[i].rect.x, candidates[i].rect.y, candidates[i].chamferScore * 4, ss.str());

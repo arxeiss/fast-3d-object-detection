@@ -38,6 +38,11 @@ void prepareDetectionUnit(DetectionUnit &dt, bool recountEdges, bool renewEdges,
 	}
 }
 
+void blurImage(cv::Mat &img) {
+	cv::GaussianBlur(img, img, edgeDetector_BlurSize, 0);
+	//cv::blur(img, img, edgeDetector_BlurSize);
+}
+
 std::vector<Triplet> generateTriplets()
 {
 	const int tripletPoints = pointsInRowCol * pointsInRowCol;
@@ -117,6 +122,7 @@ int loadAllTemplates(FolderTemplateList &templates) {
 			templateName.insert(templateName.begin(), 5 - templateName.size(), '0');
 			unit.img_8u = cv::imread(folders[f] + "template_" + templateName + ".png", CV_LOAD_IMAGE_GRAYSCALE);
 			thresholdToValue(unit.img_8u, minBGColorThreshold);
+			blurImage(unit.img_8u);
 			prepareDetectionUnit(unit);
 			templates[f][t - 1] = unit;
 #pragma omp critical
@@ -131,7 +137,9 @@ int loadAllTemplates(FolderTemplateList &templates) {
 
 cv::Mat loadTestImage_8u(int imageIndex) {
 	std::string imageIndexStr = (imageIndex < 10 ? "0" : "") + std::to_string(imageIndex);
-	return cv::imread("images/CMP-8objs/test/test_" + imageIndexStr + ".jpg", CV_LOAD_IMAGE_GRAYSCALE);
+	cv::Mat img = cv::imread("images/CMP-8objs/test/test_" + imageIndexStr + ".jpg", CV_LOAD_IMAGE_GRAYSCALE);
+	blurImage(img);
+	return img;
 }
 
 int getFolderIndexByName(std::string name) {

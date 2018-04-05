@@ -10,6 +10,8 @@
 
 void prepareDetectionUnit(DetectionUnit &dt, bool recountEdges = false, bool renewEdges = false, bool renewDistTransform = false);
 
+void blurImage(cv::Mat &img);
+
 std::vector<Triplet> generateTriplets();
 
 void thresholdToValue(cv::Mat &dst_8u, uchar noUnderThreshold);
