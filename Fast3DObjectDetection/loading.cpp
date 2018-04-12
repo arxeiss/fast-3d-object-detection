@@ -138,7 +138,6 @@ int loadAllTemplates(FolderTemplateList &templates) {
 cv::Mat loadTestImage_8u(int imageIndex) {
 	std::string imageIndexStr = (imageIndex < 10 ? "0" : "") + std::to_string(imageIndex);
 	cv::Mat img = cv::imread("images/CMP-8objs/test/test_" + imageIndexStr + ".jpg", CV_LOAD_IMAGE_GRAYSCALE);
-	blurImage(img);
 	return img;
 }
 

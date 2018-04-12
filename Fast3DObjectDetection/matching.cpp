@@ -16,7 +16,7 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 	if (timeData.is_open()) {
 		if (testIndex == 1)
 		{
-			timeData << "i,s9,s8,s7,s6,s5,s4,s3,s2,s1,s0,NMS[us],windows,winAfterNms,f1score,tp,fp,fn\n";
+			timeData << "i,s9,s8,s7,s6,s5,s4,s3,s2,s1,s0,NMS[us],windows,winAfterNms|f1score,tp,fp,fn\n";
 		}
 		timeData << testIndex << ",";
 	} else {
@@ -28,18 +28,27 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 
 	std::vector<Candidate> candidates;
 
+	
+	cv::Mat sizedScene;
+	testImg_8u.copyTo(sizedScene);
+	blurImage(sizedScene);
+
 	//for (int i = scalePyramidSteps - 1; i >= 0; i--)
 	for (int i = 0; i < scalePyramidSteps; i++)
 	{
-		cv::Mat sizedScene;
+		
 		TimeMeasuring tm(true);
 		float scaleRatio = fastPow(scalePyramidResizeRatio, i);
-		cv::resize(testImg_8u, sizedScene, cv::Size(round(testImg_8u.cols / scaleRatio), round(testImg_8u.rows / scaleRatio)));
+		
 		printf("Scale pyramid - step %d @ %dx%d", i, sizedScene.cols, sizedScene.rows);
 		matchInImageWithSlidingWindow(sizedScene, candidates, templates, hashSettings, triplets, hashTable, averageEdges, scaleRatio);
-		cv::Mat canny = getDetectedEdges_8u(sizedScene);
-		cv::imshow("Canny", canny);
-		cv::waitKey();
+		if (i < scalePyramidSteps - 1)
+		{
+			cv::resize(sizedScene, sizedScene, cv::Size(round(sizedScene.cols / scalePyramidResizeRatio), round(sizedScene.rows / scalePyramidResizeRatio)));
+		}
+		//cv::Mat canny = getDetectedEdges_8u(sizedScene);
+		//cv::imshow("Canny", canny);
+		//cv::waitKey();
 		long long int ms = tm.getTimeFromBeginning();
 		printf(" => in %d [ms]\n", ms);
 		/*testImg_8u.copyTo(toDraw);
@@ -125,7 +134,7 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 
 	std::printf("Total windows after NMS: %d\n", windows);
 	if (timeData.is_open()) {
-		timeData << candidates.size() << "," << windows << "," << imageScore.getF1Score(true) << ","
+		timeData << candidates.size() << "," << windows << "|" << imageScore.getF1Score(true) << ","
 			<< imageScore.truePositive << "," << imageScore.falsePositive << "," << imageScore.falseNegative << "\n";
 		timeData.close();
 	}
