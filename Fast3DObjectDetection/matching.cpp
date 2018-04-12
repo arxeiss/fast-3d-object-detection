@@ -6,25 +6,42 @@
 #include "TimeMeasuring.h"
 #include "chamferScore.h"
 
-F1Score matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, std::vector<GroundTruth> groundTruth, bool disableVisualisation) {
+#include <fstream>
+
+F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, std::vector<GroundTruth> &groundTruth, bool disableVisualisation) {
 	
 	cv::Mat toDraw;
+
+	std::fstream timeData("matchInImage-time.log", std::fstream::out | std::fstream::app);
+	if (timeData.is_open()) {
+		if (testIndex == 1)
+		{
+			timeData << "i,s9,s8,s7,s6,s5,s4,s3,s2,s1,s0,NMS[us],windows,winAfterNms,f1score,tp,fp,fn\n";
+		}
+		timeData << testIndex << ",";
+	} else {
+		std::printf("!!! - Error, cannot open a file for writing !!!\n");
+	}
 
 	TimeMeasuring tm;
 	tm.startMeasuring();
 
 	std::vector<Candidate> candidates;
 
-	for (int i = 9; i >= 0; i--)
-	//for (int i = 0; i < 9; i++)
+	//for (int i = scalePyramidSteps - 1; i >= 0; i--)
+	for (int i = 0; i < scalePyramidSteps; i++)
 	{
 		cv::Mat sizedScene;
-		printf("Scale pyramid - step %d", i);
 		TimeMeasuring tm(true);
-		float scaleRatio = fastPow(scalePyramidStep, i);
-		cv::resize(testImg_8u, sizedScene, cv::Size(round(testImg_8u.cols / scaleRatio), round(testImg_8u.rows / scaleRatio)));		
+		float scaleRatio = fastPow(scalePyramidResizeRatio, i);
+		cv::resize(testImg_8u, sizedScene, cv::Size(round(testImg_8u.cols / scaleRatio), round(testImg_8u.rows / scaleRatio)));
+		printf("Scale pyramid - step %d @ %dx%d", i, sizedScene.cols, sizedScene.rows);
 		matchInImageWithSlidingWindow(sizedScene, candidates, templates, hashSettings, triplets, hashTable, averageEdges, scaleRatio);
-		printf(" => in %d [ms]\n", tm.getTimeFromBeginning());
+		cv::Mat canny = getDetectedEdges_8u(sizedScene);
+		cv::imshow("Canny", canny);
+		cv::waitKey();
+		long long int ms = tm.getTimeFromBeginning();
+		printf(" => in %d [ms]\n", ms);
 		/*testImg_8u.copyTo(toDraw);
 		for (int i = 0; i < candidates.size(); i++)
 		{
@@ -32,6 +49,9 @@ F1Score matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSet
 		}
 		cv::imshow("Possible candidates", toDraw);
 		cv::waitKey();*/
+		if (timeData.is_open()) {
+			timeData << ms << ",";
+		}
 	}
 	std::printf("\nTotal matching time: %d [ms]\n", tm.getTimeFromBeginning());
 	if (!disableVisualisation)
@@ -48,7 +68,11 @@ F1Score matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSet
 	tm.insertBreakpoint("nms");
 	std::sort(candidates.begin(), candidates.end());
 	nonMaximaSupression(candidates);
-	std::printf("NMS time: %d [us]\n", tm.getTimeFromBreakpoint("nms", true));
+	long long int us = tm.getTimeFromBreakpoint("nms", true);
+	if (timeData.is_open()) {
+		timeData << us << ",";
+	}
+	std::printf("NMS time: %d [us]\n", us);
 
 	F1Score imageScore;
 	std::sort(groundTruth.begin(), groundTruth.end());
@@ -85,7 +109,26 @@ F1Score matchInImage(cv::Mat &testImg_8u, FolderTemplateList &templates, HashSet
 			}
 		}
 	}
+	
+	for (int i = 0; i < groundTruth.size(); i++)
+	{
+		if (!groundTruth[i].active)
+		{
+			continue;
+		}
+		imageScore.falseNegative++;
+		if (!disableVisualisation)
+		{
+			drawWindowToImage(NMS, groundTruth[i].rect, cv::Scalar(0, 255, 0));
+		}
+	}
+
 	std::printf("Total windows after NMS: %d\n", windows);
+	if (timeData.is_open()) {
+		timeData << candidates.size() << "," << windows << "," << imageScore.getF1Score(true) << ","
+			<< imageScore.truePositive << "," << imageScore.falsePositive << "," << imageScore.falseNegative << "\n";
+		timeData.close();
+	}
 
 	std::printf("# F1 %2.3f (Precision %1.4f / Recal: %1.4f) - TP: %2d, FP: %2d, FN: %2d\n",
 		imageScore.getF1Score(true), imageScore.getPrecision(), imageScore.getRecall(),
@@ -162,7 +205,7 @@ int solveBinarySlacification(Candidate &candidate, std::vector<GroundTruth> &gro
 	F1Score score;
 	for (int i = 0; i < grounTruth.size(); i++)
 	{	
-		if (grounTruth[i].percentageOverlap(candidate) >= GTMinOverlap)
+		if (grounTruth[i].intersectOverUnion(candidate) >= GTMinOverlap)
 		{
 			if (candidate.folderIndex == grounTruth[i].folderIndex)
 			{
@@ -171,6 +214,7 @@ int solveBinarySlacification(Candidate &candidate, std::vector<GroundTruth> &gro
 			else {
 				f1score.falseNegative++;
 			}
+			grounTruth[i].active = false;
 			return i;
 		}
 		else if (candidate.rect.x + candidate.rect.width <= grounTruth[i].rect.x)

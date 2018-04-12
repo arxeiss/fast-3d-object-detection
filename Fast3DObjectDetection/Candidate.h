@@ -8,7 +8,6 @@ class Candidate : public GroundTruth
 public:
 	TemplateIndex tplIndex;
 	float chamferScore;
-	bool active = false;
 
 	Candidate() :tplIndex(0,0) {}
 

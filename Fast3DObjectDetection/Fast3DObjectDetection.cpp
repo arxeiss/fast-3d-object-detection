@@ -60,7 +60,7 @@ void prepareAndSaveData() {
 	TemplateHashTable hashTable;
 	HashSettings hashSettings = fillHashTable(hashTable, templates, templatesLoaded, triplets);
 	elapsedTime.insertBreakpoint("hashTable");
-	std::printf("Hash table filled in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("genTriplets"), elapsedTime.getTimeFromBeginning());
+	std::printf("Method fillHashTable in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("genTriplets"), elapsedTime.getTimeFromBeginning());
 	std::printf("hash table size: %d\n", hashTable.size());
 	int maxSize = 0;
 	for (auto it = hashTable.begin(); it != hashTable.end(); ++it) {
@@ -84,8 +84,8 @@ void prepareAndSaveData() {
 		//cv::waitKey();
 		std::printf("Folder %d of templates filtered in: %d [ms]\n", f, elapsedTime.getTimeFromBeginning());
 	}
-	elapsedTime.insertBreakpoint("filterEdges");
 	std::printf("Edges filtered in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("hashTable"), elapsedTime.getTimeFromBeginning());
+	elapsedTime.insertBreakpoint("filterEdges");
 
 	savePreparedData("preparedData.bin", templates, triplets, averageEdges);
 
@@ -132,7 +132,7 @@ void runMatching(bool disableVisualisation = false) {
 		std::printf("\n#####################\n# Scene %d:\n", i);
 		std::vector<GroundTruth> groundTruth;
 		loadGroundTruthData(groundTruth, i);
-		total += matchInImage(loadTestImage_8u(i), templates, hashSettings, triplets, hashTable, averageEdges, groundTruth, disableVisualisation);
+		total += matchInImage(i, loadTestImage_8u(i), templates, hashSettings, triplets, hashTable, averageEdges, groundTruth, disableVisualisation);
 	}
 	std::printf("\n\n#####################\n\nTotal F1 %2.5f (Precision %1.4f / Recal: %1.4f)\nTP: %2d, FP: %2d, FN: %2d\n",
 		total.getF1Score(true), total.getPrecision(), total.getRecall(),
@@ -146,6 +146,7 @@ int main()
 	std::cout << "\t1. Prepare data\n";
 	std::cout << "\t2. Run matching\n";
 	std::cout << "\t3. Run matching without visualization\n";
+	std::cout << "\t4. Start from scratch (prepare and run matching)\n";
 
 	int algo;
 	std::cin >> algo;
@@ -156,12 +157,15 @@ int main()
 	{
 	case 1:
 		prepareAndSaveData();
-		runMatching(true);
 		break;
 	case 2:
 		runMatching();
 		break;
 	case 3:
+		runMatching(true);
+		break;
+	case 4:
+		prepareAndSaveData();
 		runMatching(true);
 		break;
 	default:

@@ -7,16 +7,19 @@ class GroundTruth
 public:
 	cv::Rect rect;
 	int folderIndex;
-	GroundTruth() {};
+	bool active = false;
 
-	GroundTruth(cv::Rect rect, int folderIndex){
+	GroundTruth() {};
+	GroundTruth(cv::Rect rect, int folderIndex, bool active = true){
 		this->rect = rect;
 		this->folderIndex = folderIndex;
+		this->active = active;
 	}
 
-	GroundTruth(int xTL, int yTL, int xBR, int yBR, int folderIndex){
+	GroundTruth(int xTL, int yTL, int xBR, int yBR, int folderIndex, bool active = true){
 		this->rect = cv::Rect(cv::Point(xTL, yTL), cv::Point(xBR, yBR));
 		this->folderIndex = folderIndex;
+		this->active = active;
 	}
 
 	float percentageOverlap(const GroundTruth &c2) {

@@ -200,8 +200,8 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 	std::vector<float> distances = std::vector<float>(tripletsValues.size() * 3);
 	std::printf("TripletsValues - %d, distances - %d\n", tripletsValues.size(), distances.size());
 
-	std::map<float, int> dstTest;
-
+	//std::map<float, int> dstTest;
+	TimeMeasuring tm(true);
 	int templateTripletValI = 0;
 	int distancesI = 0;
 	for (int f = 0; f < templates.size(); f++)
@@ -219,9 +219,9 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 				distances[distancesI++] = trpVal.d2;
 				distances[distancesI++] = trpVal.d3;
 
-				dstTest[trpVal.d1]++;
-				dstTest[trpVal.d2]++;
-				dstTest[trpVal.d3]++;
+				//dstTest[trpVal.d1]++;
+				//dstTest[trpVal.d2]++;
+				//dstTest[trpVal.d3]++;
 
 				float tripletMinD = trpVal.minDistance(),
 					tripletMaxD = trpVal.maxDistance(),
@@ -241,9 +241,11 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 			}
 		}
 	}
-	TimeMeasuring tm(true);
+	
+	std::printf("Triplet values counted in in %d[ms]\n", tm.getTimeFromBeginning());
+	tm.insertBreakpoint("valuesCounted");
 	std::sort(distances.begin(), distances.end());
-	std::printf("Sorted in %d[ms] - length: %d\n", tm.getTimeFromBeginning(), distances.size());
+	std::printf("Sorted in %d[ms] - length: %d\n", tm.getTimeFromBreakpoint("valuesCounted"), distances.size());
 	std::printf("quantile 0.25 = %f\nquantile 0.5 = %f\nquantile 0.75 = %f\n\n", distances[(int)(distances.size() * 0.25)],
 		distances[(int)(distances.size() * 0.5)], distances[(int)(distances.size() * 0.75)]);
 
@@ -288,7 +290,8 @@ HashSettings fillHashTable(TemplateHashTable &hashTable, FolderTemplateList &tem
 	TimeMeasuring tm(true);
 	std::vector<float> dBinsRange;
 	countTripletsValues(tripletsValues, templates, triplets, templatesLoaded, dBinsRange, &minD, &maxD, &minPhi, &maxPhi);
-	std::printf("Count triplet vals in %d[ms]\n", tm.getTimeFromBeginning());
+	std::printf("Method count triplet vals in %d[ms]\n", tm.getTimeFromBeginning());
+	tm.insertBreakpoint("fillHash");
 	HashSettings hashSettings(minD, maxD, minPhi, maxPhi, distanceBins, orientationBins);
 	hashSettings.dBinsRange = dBinsRange;
 
@@ -318,6 +321,8 @@ HashSettings fillHashTable(TemplateHashTable &hashTable, FolderTemplateList &tem
 		phiBinsCnt[hashKey.phi2]++;
 		phiBinsCnt[hashKey.phi3]++;
 	}
+
+	std::printf("Hash table filled in %d[ms]\n", tm.getTimeFromBreakpoint("fillHash"));
 
 
 	std::printf("Distance bins:\n");
@@ -412,6 +417,8 @@ bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::
 		return false;
 	}
 
+	TimeMeasuring tm(true);
+
 	int tripletsSize;
 	ifsData.read((char*)(&tripletsSize), sizeof(int));
 	triplets.reserve(tripletsSize);
@@ -430,6 +437,9 @@ bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::
 	int folders, templatesPerFolder;
 	ifsData.read((char*)(&folders), sizeof(int));
 	ifsData.read((char*)(&templatesPerFolder), sizeof(int));
+
+	std::printf("Data loading - triplets in %d[us]\n", tm.getTimeFromBeginning(true));
+	tm.insertBreakpoint("templates");
 
 	templates.resize(folders);
 	for (int f = 0; f < folders; f++)
@@ -450,9 +460,14 @@ bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::
 			templates[f].push_back(unit);
 		}
 	}
+	std::printf("Data loading - prepare units %d[ms]\n", tm.getTimeFromBreakpoint("templates"));
+	tm.insertBreakpoint("hashTable");
+	
 	int templatesLoaded = folders * templatesPerFolder;
 	hashSettings = fillHashTable(hashTable, templates, templatesLoaded, triplets);
-
+	std::printf("Data loading - fill hash table %d[ms]\n", tm.getTimeFromBreakpoint("hashTable"));
+	tm.insertBreakpoint("edges");
+	
 	for (int f = 0; f < folders; f++)
 	{
 		for (int t = 0; t < templatesPerFolder; t++)
@@ -470,8 +485,10 @@ bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::
 			prepareDetectionUnit(templates[f][t], true);
 		}
 	}
-	ifsData.read((char*)(&averageEdges), sizeof(float));
+	std::printf("Data loading - edges %d[ms]\n", tm.getTimeFromBreakpoint("edges"));
+	tm.insertBreakpoint("edges");
 
+	ifsData.read((char*)(&averageEdges), sizeof(float));
 	ifsData.close();
 
 	return true;

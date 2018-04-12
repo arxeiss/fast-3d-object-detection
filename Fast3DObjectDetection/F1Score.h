@@ -17,15 +17,30 @@ public:
 	}
 
 	float getPrecision() {
-		return (float)this->truePositive / (float)(this->truePositive + this->falsePositive);
+		float denominator = (float)(this->truePositive + this->falsePositive);
+		if (denominator == 0)
+		{
+			return 0;
+		}
+		return (float)this->truePositive / denominator;
 	}
 
 	float getRecall() {
-		return (float)this->truePositive / (float)(this->truePositive + this->falseNegative);
+		float denominator = (float)(this->truePositive + this->falseNegative);
+		if (denominator == 0)
+		{
+			return 0;
+		}
+		return (float)this->truePositive / denominator;
 	}
 
 	float getF1Score(bool percentage = false) {
-		float score = 2.0f * (this->getPrecision() * this->getRecall()) / (this->getPrecision() + this->getRecall());
+		float denominator = (this->getPrecision() + this->getRecall());
+		if (denominator == 0)
+		{
+			return 0;
+		}
+		float score = 2.0f * (this->getPrecision() * this->getRecall()) / denominator;
 		if (percentage)
 		{
 			score *= 100;

@@ -25,28 +25,29 @@ const float thetaD = 3.1;			// Used in removing edges and computing chamfer scor
 const float thetaPhi = M_PI / 9.0f; // Same as above
 const float lambda = 0.5f;			// Used in chamfer score computing - Compensating the Bias Towards Simples Shapes
 const float tau = 0.6;				// Ratio * kTpl - how many edges must be in kTpl templates same to keep them
-const float removePixelRatio = 0.4f;// How many percent of edges to remove
-const int kTpl = 4;					// How many templates are compared to current to remove non stable edges
+const float removePixelRatio = 0.4f;// p (paper) - How many percent of edges to remove
+const int kTpl = 4;					// k (paper) - How many templates are compared to current to remove non stable edges
 const int thetaV = 4;				// How many triplets must have same template index to keep it as candidate
 const float minAvgEdgesRatio = 0.5; // Min averages to keep candidate (minAvgEdgesRatio * averageEdges)
-const int minBGColorThreshold = 37; // Minimal uchar value on background in loaded templates
+const int minBGColorThreshold = 37; // t_b (papžer) -  Minimal uchar value on background in loaded templates 
 
 // Triplets
-const int tripletsAmount = 50;
-const int pointsInRowCol = 6;
+const int tripletsAmount = 50; // L
+const int pointsInRowCol = 6; // M = 36 (6*6)
 const int pointsEdgeOffset = 4;
 const int pointsDistance = 8;
 
 // Sliding window, scale pyramid and Ground Truth
 const int slidingWindowSize = 48; //Same size as template
-const int slidingWindowStep = 3;
-const float scalePyramidStep = 1.2;
-const float NMSMinOverlap = 0.3f;
-const float GTMinOverlap = 0.5f;
+const int slidingWindowStep = 3; // s_s
+const int scalePyramidSteps = 10; // s_n
+const float scalePyramidResizeRatio = 1.2; // s_r
+const float NMSMinOverlap = 0.3f; // o_m
+const float GTMinOverlap = 0.5f; // o_g
 
 // Set max to 8, otherwise change hashing for QuantizedTripletValues
-const int distanceBins = 4;
-const int orientationBins = 6;
+const int distanceBins = 4; // n_d
+const int orientationBins = 6; // n_phi
 
 const cv::Mat xDerivMask = (cv::Mat_<float>(3, 3) << -1.0f, 0, 1.0f, -2.0f, 0, 2.0f, -1.0f, 0, 1.0f);
 const cv::Mat yDerivMask = (cv::Mat_<float>(3, 3) << -1.0f, -2.0f, -1.0f, 0, 0, 0, 1.0f, 2.0f, 1.0f);
