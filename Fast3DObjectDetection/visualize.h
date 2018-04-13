@@ -237,8 +237,8 @@ inline int visualizeTriplets(std::vector<Triplet> &triplets, int edgeOffset, int
 }
 
 /// TEST func
-inline void visualizeTripletOnEdges(DetectionUnit &unit, Triplet &triplet, TripletValues *tripletValues = NULL, int wait = 0) {
-	int scaleRatio = 10;
+inline cv::Mat visualizeTripletOnEdges(DetectionUnit &unit, Triplet &triplet, TripletValues *tripletValues = NULL, bool showText = true, int wait = 0) {
+	int scaleRatio = 5;
 	cv::Mat show;
 	cv::resize(unit.edges_8u, show, cv::Size(), scaleRatio, scaleRatio, cv::INTER_AREA);
 	for (size_t i = 0; i < show.cols * show.rows; i++)
@@ -271,29 +271,31 @@ inline void visualizeTripletOnEdges(DetectionUnit &unit, Triplet &triplet, Tripl
 		cv::line(show, p1, cv::Point(p1.x - round(cos(tripletValues->phi1) * oriLineLength), p1.y - round(sin(tripletValues->phi1) * oriLineLength)), cv::Scalar(0, 178, 191), 2);
 		cv::line(show, p2, cv::Point(p2.x - round(cos(tripletValues->phi2) * oriLineLength), p2.y - round(sin(tripletValues->phi2) * oriLineLength)), cv::Scalar(0, 178, 191), 2);
 		cv::line(show, p3, cv::Point(p3.x - round(cos(tripletValues->phi3) * oriLineLength), p3.y - round(sin(tripletValues->phi3) * oriLineLength)), cv::Scalar(0, 178, 191), 2);
+		if (showText) {
+			int textLength = 140;
+			p1.x += 1 * scaleRatio; p2.x += 1 * scaleRatio; p3.x += 1 * scaleRatio;
+			p1.y -= 1 * scaleRatio; p2.y -= 1 * scaleRatio; p3.y -= 1 * scaleRatio;
+			if (p1.x + textLength > show.cols) { p1.x -= textLength; }
+			if (p2.x + textLength > show.cols) { p2.x -= textLength; }
+			if (p3.x + textLength > show.cols) { p3.x -= textLength; }
 
-		int textLength = 140;
-		p1.x += 1 * scaleRatio; p2.x += 1 * scaleRatio; p3.x += 1 * scaleRatio;
-		p1.y -= 1 * scaleRatio; p2.y -= 1 * scaleRatio; p3.y -= 1 * scaleRatio;
-		if (p1.x + textLength > show.cols) { p1.x -= textLength; }
-		if (p2.x + textLength > show.cols) { p2.x -= textLength; }
-		if (p3.x + textLength > show.cols) { p3.x -= textLength; }
-
-		std::stringstream ss;
-		ss << std::fixed << std::setprecision(2) << "d: " << tripletValues->d1 << " phi: " << tripletValues->phi1;
-		cv::putText(show, ss.str(), p1, CV_AA, 0.3f, cv::Scalar(0, 0, 200), 1);
-		ss.str("");
-		ss.clear();
-		ss << std::fixed << std::setprecision(2) << "d: " << tripletValues->d2 << " phi: " << tripletValues->phi2;
-		cv::putText(show, ss.str(), p2, CV_AA, 0.3f, cv::Scalar(0, 170, 0), 1);
-		ss.str("");
-		ss.clear();
-		ss << std::fixed << std::setprecision(2) << "d: " << tripletValues->d3 << " phi: " << tripletValues->phi3;
-		cv::putText(show, ss.str(), p3, CV_AA, 0.3f, cv::Scalar(200, 0, 0), 1);
+			std::stringstream ss;
+			ss << std::fixed << std::setprecision(2) << "d: " << tripletValues->d1 << " phi: " << tripletValues->phi1;
+			cv::putText(show, ss.str(), p1, CV_AA, 0.3f, cv::Scalar(0, 0, 200), 1);
+			ss.str("");
+			ss.clear();
+			ss << std::fixed << std::setprecision(2) << "d: " << tripletValues->d2 << " phi: " << tripletValues->phi2;
+			cv::putText(show, ss.str(), p2, CV_AA, 0.3f, cv::Scalar(0, 170, 0), 1);
+			ss.str("");
+			ss.clear();
+			ss << std::fixed << std::setprecision(2) << "d: " << tripletValues->d3 << " phi: " << tripletValues->phi3;
+			cv::putText(show, ss.str(), p3, CV_AA, 0.3f, cv::Scalar(200, 0, 0), 1);
+		}
 	}
 
 	cv::imshow("Triplet on edges", show);
 	cv::waitKey(wait);
+	return show;
 }
 
 /// TEST func - potrebuje ty 2 vyse

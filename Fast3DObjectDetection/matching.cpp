@@ -153,12 +153,14 @@ void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &ca
 	int maxX = scene_8u.cols - slidingWindowSize + 1;
 	int maxY = scene_8u.rows - slidingWindowSize + 1;
 
+	cv::Mat edges_8u = getDetectedEdges_8u(scene_8u);
+
 #pragma omp parallel for
 	for (int x = 0; x < maxX; x += slidingWindowStep)
 	{
 		for (int y = 0; y < maxY; y += slidingWindowStep)
 		{
-			Candidate candidate = computeMatchInSlidingWindow(scene_8u, x, y, templates, hashSettings, triplets, hashTable, averageEdges, sceneScaleRatio);
+			Candidate candidate = computeMatchInSlidingWindow(scene_8u, edges_8u, x, y, templates, hashSettings, triplets, hashTable, averageEdges, sceneScaleRatio);
 			if (candidate.active)
 			{			
 				#pragma omp critical
@@ -168,8 +170,8 @@ void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &ca
 	}
 }
 
-Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, int x, int y, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, float sceneScaleRatio) {
-	DetectionUnit unit = getDetectionUnitByROI(scene_8u, x, y, slidingWindowSize);
+Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, cv::Mat &edges_8u, int x, int y, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, float sceneScaleRatio) {
+	DetectionUnit unit = getDetectionUnitByROI(scene_8u, edges_8u, x, y, slidingWindowSize);
 	if (unit.edgesCount == 0) {
 		return Candidate();
 	}

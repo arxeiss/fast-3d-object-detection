@@ -42,7 +42,7 @@ const int slidingWindowSize = 48; //Same size as template
 const int slidingWindowStep = 3; // s_s
 const int scalePyramidSteps = 10; // s_n
 const float scalePyramidResizeRatio = 1.2; // s_r
-const float NMSMinOverlap = 0.3f; // o_m
+const float NMSMinOverlap = 0.5f; // o_m
 const float GTMinOverlap = 0.5f; // o_g
 
 // Set max to 8, otherwise change hashing for QuantizedTripletValues

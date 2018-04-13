@@ -171,10 +171,11 @@ void loadGroundTruthData(std::vector<GroundTruth> &groundTruth, int imageIndex) 
 	}
 }
 
-DetectionUnit getDetectionUnitByROI(cv::Mat &img_8u, int x, int y, int roiSize) {
+DetectionUnit getDetectionUnitByROI(cv::Mat &img_8u, cv::Mat &edges_8u, int x, int y, int roiSize) {
 	DetectionUnit unit{};
 	unit.img_8u = img_8u(cv::Rect(x, y, roiSize, roiSize));
-	prepareDetectionUnit(unit);
+	unit.edges_8u = edges_8u(cv::Rect(x, y, roiSize, roiSize));
+	prepareDetectionUnit(unit, true, false, true);
 	return unit;
 }
 
