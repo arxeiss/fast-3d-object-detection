@@ -216,6 +216,10 @@ int solveBinarySlacification(Candidate &candidate, std::vector<GroundTruth> &gro
 	F1Score score;
 	for (int i = 0; i < grounTruth.size(); i++)
 	{	
+		if (candidate.rect.x + candidate.rect.width <= grounTruth[i].rect.x)
+		{
+			break;
+		}
 		if (grounTruth[i].intersectOverUnion(candidate) >= GTMinOverlap)
 		{
 			if (candidate.folderIndex == grounTruth[i].folderIndex)
@@ -227,10 +231,6 @@ int solveBinarySlacification(Candidate &candidate, std::vector<GroundTruth> &gro
 			}
 			grounTruth[i].active = false;
 			return i;
-		}
-		else if (candidate.rect.x + candidate.rect.width <= grounTruth[i].rect.x)
-		{
-			break;
 		}
 	}
 	f1score.falsePositive++;
@@ -245,6 +245,7 @@ void nonMaximaSupression(std::vector<Candidate> &candidates) {
 		for (int j = i+1; j < candidates.size(); j++)
 		{
 			if (!candidates[j].active) { continue; }
+			if (candidates[i].rect.x + candidates[i].rect.width <= candidates[j].rect.x) { break; }
 
 			if (candidates[i].percentageOverlap(candidates[j]) >= NMSMinOverlap)
 			{
@@ -258,10 +259,6 @@ void nonMaximaSupression(std::vector<Candidate> &candidates) {
 					i = j;
 					startFromBeginning = true;
 				}
-			}
-			else if (candidates[i].rect.x + candidates[i].rect.width <= candidates[j].rect.x)
-			{
-				break;
 			}
 		}
 		if (startFromBeginning)
