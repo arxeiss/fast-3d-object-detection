@@ -50,7 +50,47 @@ void prepareAndSaveData() {
 	elapsedTime.insertBreakpoint("tplLoaded");
 	std::printf("%d templates loaded in: %d [ms]\n", templatesLoaded, elapsedTime.getTimeFromBeginning());
 
+	std::printf("\n\n\n\n");
+	int minOtherQEdges = 3000;
+	for (int f = 0; f < templates.size(); f++)
+	{
+		for (int t = 0; t < templates[f].size(); t++)
+		{
+			int q1 = 0, q2 = 0, q3 = 0, q4 = 0;
+			for (int x = 0; x < templates[f][t].edges_8u.cols; x++)
+			{
+				for (int y = 0; y < templates[f][t].edges_8u.rows; y++)
+				{
+					if (templates[f][t].edges_8u.at<uchar>(y, x) == 0) {
+						if (x < 24) {
+							if (y < 24) { q1++; }
+							else { q2++; }
+						}
+						else
+						{
+							if (y < 24) { q3++; }
+							else { q4++; }
+						}
+					}
+				}
+			}
+			int minQEdges = 8;
+			if (q1 < minQEdges || q2 < minQEdges || q3 < minQEdges || q4 < minQEdges) {
+				int lessQEdges = 0;
+				if (q1 < minQEdges) { lessQEdges++; }
+				if (q2 < minQEdges) { lessQEdges++; }
+				if (q3 < minQEdges) { lessQEdges++; }
+				if (q4 < minQEdges) { lessQEdges++; }
+				if (lessQEdges > 1)
+				{
+					std::printf("TPL %d / %4d Zeros: %d   =   (Q1-4 = %2d - %2d - %2d - %2d)\n", f, t, lessQEdges, q1, q2, q3, q4);
+				}
+			}
+		}
+	}
+
 	float averageEdges = countAverageEdgesAcrossTemplates(templates);
+	std::printf("Average edges: %f - Min edges: %d\n", averageEdges);
 	//showChamferScore(templates[0][0], templates[0][1], averageEdges);
 	std::vector<Triplet> triplets = generateTriplets();
 	elapsedTime.insertBreakpoint("genTriplets");
@@ -86,8 +126,8 @@ void prepareAndSaveData() {
 	}
 	std::printf("Edges filtered in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("hashTable"), elapsedTime.getTimeFromBeginning());
 	elapsedTime.insertBreakpoint("filterEdges");
-
-	savePreparedData("preparedData.bin", templates, triplets, averageEdges);
+	
+	savePreparedData("preparedData.bin", templates, triplets);
 
 	elapsedTime.insertBreakpoint("fileSaving");
 	std::printf("File saved in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("filterEdges"), elapsedTime.getTimeFromBeginning());
@@ -113,11 +153,13 @@ void runMatching(bool disableVisualisation = false) {
 	std::vector<Triplet> triplets;
 	TemplateHashTable hashTable;
 	HashSettings hashSettings;
-	float averageEdges = 0;
+	int minEdges = 0;
 
-	bool success = loadPreparedData("preparedData.bin", templates, triplets, hashTable, hashSettings, averageEdges);
-	std::printf("Average edges: %f\n", averageEdges);
-	std::printf("hash table size: %d / buckets: %d\n", hashTable.size(), hashTable.bucket_count());
+	bool success = loadPreparedData("preparedData.bin", templates, triplets, hashTable, hashSettings, minEdges);
+	float averageEdges = countAverageEdgesAcrossTemplates(templates);
+	
+	std::printf("Average edges: %f - Min edges: %d\n", averageEdges, minEdges);
+ 	std::printf("hash table size: %d / buckets: %d\n", hashTable.size(), hashTable.bucket_count());
 	std::printf("Data loaded - %s\n", (success ? "sucessfully" : "with error"));
 
 	elapsedTime.insertBreakpoint("fileLoaded");
@@ -132,7 +174,7 @@ void runMatching(bool disableVisualisation = false) {
 		std::printf("\n#####################\n# Scene %d:\n", i);
 		std::vector<GroundTruth> groundTruth;
 		loadGroundTruthData(groundTruth, i);
-		total += matchInImage(i, loadTestImage_8u(i), templates, hashSettings, triplets, hashTable, averageEdges, groundTruth, disableVisualisation);
+		total += matchInImage(i, loadTestImage_8u(i), templates, hashSettings, triplets, hashTable, averageEdges, minEdges, groundTruth, disableVisualisation);
 	}
 	std::printf("\n\n#####################\n\nTotal F1 %2.5f (Precision %1.4f / Recal: %1.4f)\nTP: %2d, FP: %2d, FN: %2d\n",
 		total.getF1Score(true), total.getPrecision(), total.getRecall(),

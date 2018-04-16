@@ -27,8 +27,8 @@ const float lambda = 0.5f;			// Used in chamfer score computing - Compensating t
 const float tau = 0.6;				// Ratio * kTpl - how many edges must be in kTpl templates same to keep them
 const float removePixelRatio = 0.4f;// p (paper) - How many percent of edges to remove
 const int kTpl = 4;					// k (paper) - How many templates are compared to current to remove non stable edges
-const int thetaV = 4;				// How many triplets must have same template index to keep it as candidate
-const float minAvgEdgesRatio = 0.5; // Min averages to keep candidate (minAvgEdgesRatio * averageEdges)
+const int thetaV = 3;				// How many triplets must have same template index to keep it as candidate
+const float minEdgesRatio = 0.95;	// Min edges to keep candidate (minEdgesRatio * minEdges)
 const int minBGColorThreshold = 37; // t_b (papžer) -  Minimal uchar value on background in loaded templates 
 
 // Triplets

@@ -8,7 +8,7 @@
 
 #include <fstream>
 
-F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, std::vector<GroundTruth> &groundTruth, bool disableVisualisation) {
+F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, int minEdges, std::vector<GroundTruth> &groundTruth, bool disableVisualisation) {
 	
 	cv::Mat toDraw;
 
@@ -28,6 +28,8 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 
 	std::vector<Candidate> candidates;
 
+	minEdges = floor((float)minEdges * minEdgesRatio);
+
 	
 	cv::Mat sizedScene;
 	testImg_8u.copyTo(sizedScene);
@@ -41,7 +43,7 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 		float scaleRatio = fastPow(scalePyramidResizeRatio, i);
 		
 		printf("Scale pyramid - step %d @ %dx%d", i, sizedScene.cols, sizedScene.rows);
-		matchInImageWithSlidingWindow(sizedScene, candidates, templates, hashSettings, triplets, hashTable, averageEdges, scaleRatio);
+		matchInImageWithSlidingWindow(sizedScene, candidates, templates, hashSettings, triplets, hashTable, averageEdges, minEdges, scaleRatio);
 		if (i < scalePyramidSteps - 1)
 		{
 			cv::resize(sizedScene, sizedScene, cv::Size(round(sizedScene.cols / scalePyramidResizeRatio), round(sizedScene.rows / scalePyramidResizeRatio)));
@@ -149,7 +151,7 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 	return imageScore;
 }
 
-void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &candidates, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, float sceneScaleRatio) {
+void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &candidates, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, int minEdges, float sceneScaleRatio) {
 	int maxX = scene_8u.cols - slidingWindowSize + 1;
 	int maxY = scene_8u.rows - slidingWindowSize + 1;
 
@@ -160,7 +162,7 @@ void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &ca
 	{
 		for (int y = 0; y < maxY; y += slidingWindowStep)
 		{
-			Candidate candidate = computeMatchInSlidingWindow(scene_8u, edges_8u, x, y, templates, hashSettings, triplets, hashTable, averageEdges, sceneScaleRatio);
+			Candidate candidate = computeMatchInSlidingWindow(scene_8u, edges_8u, x, y, templates, hashSettings, triplets, hashTable, averageEdges, minEdges, sceneScaleRatio);
 			if (candidate.active)
 			{			
 				#pragma omp critical
@@ -170,10 +172,40 @@ void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &ca
 	}
 }
 
-Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, cv::Mat &edges_8u, int x, int y, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, float sceneScaleRatio) {
+Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, cv::Mat &edges_8u, int x, int y, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, int minEdges, float sceneScaleRatio) {
 	DetectionUnit unit = getDetectionUnitByROI(scene_8u, edges_8u, x, y, slidingWindowSize);
-	if (unit.edgesCount == 0) {
+	if (unit.edgesCount < minEdges) {
 		return Candidate();
+	}
+	int q1 = 0, q2 = 0, q3 = 0, q4 = 0;
+	for (int x = 0; x < unit.edges_8u.cols; x++)
+	{
+		for (int y = 0; y < unit.edges_8u.rows; y++)
+		{
+			if (unit.edges_8u.at<uchar>(y, x) == 0) {
+				if (x < 24) {
+					if (y < 24) { q1++; }
+					else { q2++; }
+				}
+				else
+				{
+					if (y < 24) { q3++; }
+					else { q4++; }
+				}
+			}
+		}
+	}
+	int minQEdges = 10;
+	if (q1 < minQEdges || q2 < minQEdges || q3 < minQEdges || q4 < minQEdges) {
+		int lessQEdges = 0;
+		if (q1 < minQEdges) { lessQEdges++; }
+		if (q2 < minQEdges) { lessQEdges++; }
+		if (q3 < minQEdges) { lessQEdges++; }
+		if (q4 < minQEdges) { lessQEdges++; }
+		if (lessQEdges > 1)
+		{
+			return Candidate();
+		}
 	}
 
 	std::unordered_map<TemplateIndex, int> candidatesCount;
@@ -200,7 +232,7 @@ Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, cv::Mat &edges_8u, int 
 		}
 	}
 
-	if (moreTimesThanThetaV > 0 /*&& bestChamferScore >= 0.05*/) {
+	if (moreTimesThanThetaV > 0 && bestChamferScore > 0.5) {
 		//std::printf("Total candidates %4d - more than 3: %2d, best score: %4.5f\n", candidatesCount.size(), moreTimesThanThetaV, bestChamferScore);
 		return Candidate(
 			x * sceneScaleRatio,
@@ -225,15 +257,24 @@ int solveBinarySlacification(Candidate &candidate, std::vector<GroundTruth> &gro
 			if (candidate.folderIndex == grounTruth[i].folderIndex)
 			{
 				f1score.truePositive++;
+				/*std::fstream log("tp.csv", std::fstream::app);
+				log << candidate.chamferScore << "\n";
+				log.close();*/
 			}
 			else {
 				f1score.falseNegative++;
+				/*std::fstream log("fn.csv", std::fstream::app);
+				log << candidate.chamferScore << "\n";
+				log.close();*/
 			}
 			grounTruth[i].active = false;
 			return i;
 		}
 	}
 	f1score.falsePositive++;
+	/*std::fstream log("fp.csv", std::fstream::app);
+	log << candidate.chamferScore << "\n";
+	log.close();*/
 	return -1;
 }
 

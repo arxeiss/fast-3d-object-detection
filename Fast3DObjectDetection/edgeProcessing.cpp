@@ -207,3 +207,20 @@ float countAverageEdgesAcrossTemplates(FolderTemplateList &folderTemplates) {
 
 	return ((float)edgesCount) / ((float)templatesCount);
 }
+
+int countMinEdgesAcrossTemplates(FolderTemplateList &folderTemplates) {
+	int minEdges = INT_MAX;
+
+	for (int f = 0; f < folderTemplates.size(); f++)
+	{
+		for (int t = 0; t < folderTemplates[f].size(); t++)
+		{
+			int edges = folderTemplates[f][t].edgesCount;
+			if (edges < minEdges)
+			{
+				minEdges = edges;
+			}
+		}
+	}
+	return minEdges;
+}

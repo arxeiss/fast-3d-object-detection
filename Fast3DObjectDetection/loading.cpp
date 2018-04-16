@@ -6,6 +6,7 @@
 #include "TimeMeasuring.h"
 
 #include "visualize.h"
+#include "edgeProcessing.h"
 
 
 // detect edges, distance transform, count edges
@@ -16,6 +17,7 @@ void prepareDetectionUnit(DetectionUnit &dt, bool recountEdges, bool renewEdges,
 		recountEdges = true;
 	}
 	if (dt.edgesCount == 0 || recountEdges) {
+		dt.edgesCount = 0;
 		for (int x = 0; x < dt.edges_8u.cols; x++)
 		{
 			for (int y = 0; y < dt.edges_8u.rows; y++)
@@ -353,7 +355,7 @@ QuantizedTripletValues getTableHashKey(HashSettings &hashSettings, DetectionUnit
 	return hashKey;
 }
 
-void savePreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets, float averageEdges) {
+void savePreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets) {
 	std::ofstream ofs(fileName, std::ios::binary);
 	if (!ofs.is_open()) {
 		std::printf("!!! - Error, cannot open a file %s for writing\n", fileName);
@@ -407,7 +409,7 @@ void savePreparedData(std::string fileName, FolderTemplateList &templates, std::
 // https://github.com/takmin/BinaryCvMat/blob/master/BinaryCvMat.cpp
 // http://pythonopencv.com/step-by-step-install-opencv-3-3-with-visual-studio-2015-on-windows-10-x64-2017-diy/
 // http://pythonopencv.com/easy-fast-pre-compiled-opencv-libraries-and-headers-for-3-2-with-visual-studio-2015-x64-windows-10-support/
-bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, HashSettings &hashSettings, float &averageEdges) {
+bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, HashSettings &hashSettings, int &minEdges) {
 	std::ifstream ifsData(fileName, std::ios::binary);
 
 	if (!ifsData.is_open()) {
@@ -458,6 +460,8 @@ bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::
 			templates[f].push_back(unit);
 		}
 	}
+	minEdges = countMinEdgesAcrossTemplates(templates);
+
 	std::printf("Data loading - prepare units %d[ms]\n", tm.getTimeFromBreakpoint("templates"));
 	tm.insertBreakpoint("hashTable");
 	

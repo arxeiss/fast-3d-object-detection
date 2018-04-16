@@ -33,6 +33,6 @@ HashSettings fillHashTable(TemplateHashTable &hashTable, FolderTemplateList &tem
 
 QuantizedTripletValues getTableHashKey(HashSettings &hashSettings, DetectionUnit &unit, Triplet &triplet, int tripletIndex);
 
-void savePreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets, float averageEdges);
+void savePreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets);
 
-bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, HashSettings &hashSettings, float &averageEdges);
+bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, HashSettings &hashSettings, int &minEdges);

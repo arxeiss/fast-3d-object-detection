@@ -12,3 +12,5 @@ cv::Mat removeNonStablePoints_8u(DetectionUnit &srcTemplate, std::vector<Detecti
 void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdges);
 
 float countAverageEdgesAcrossTemplates(FolderTemplateList &folderTemplates);
+
+int countMinEdgesAcrossTemplates(FolderTemplateList &folderTemplates);
