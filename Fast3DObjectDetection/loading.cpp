@@ -402,8 +402,6 @@ void savePreparedData(std::string fileName, FolderTemplateList &templates, std::
 		}
 	}
 
-	ofs.write((const char*)(&averageEdges), sizeof(float));
-
 	ofs.close();
 }
 // https://github.com/takmin/BinaryCvMat/blob/master/BinaryCvMat.cpp
@@ -486,9 +484,6 @@ bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::
 		}
 	}
 	std::printf("Data loading - edges %d[ms]\n", tm.getTimeFromBreakpoint("edges"));
-	tm.insertBreakpoint("edges");
-
-	ifsData.read((char*)(&averageEdges), sizeof(float));
 	ifsData.close();
 
 	return true;
