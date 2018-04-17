@@ -221,7 +221,7 @@ Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, cv::Mat &edges_8u, int 
 		return Candidate();
 	}
 
-	std::unordered_map<TemplateIndex, int> candidatesCount;
+	tsl::hopscotch_map<TemplateIndex, int> candidatesCount;
 	for (int i = 0; i < triplets.size(); i++) {
 		QuantizedTripletValues hashKey = getTableHashKey(hashSettings, unit, triplets[i], i);
 		if (hashTable.count(hashKey)) {

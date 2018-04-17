@@ -124,6 +124,8 @@
     <ClInclude Include="F1Score.h" />
     <ClInclude Include="GroundTruth.h" />
     <ClInclude Include="HashSettings.h" />
+    <ClInclude Include="hopscotch_hash.h" />
+    <ClInclude Include="hopscotch_map.h" />
     <ClInclude Include="loading.h" />
     <ClInclude Include="matching.h" />
     <ClInclude Include="sparseDescriptor.h" />
