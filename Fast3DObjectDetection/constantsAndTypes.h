@@ -29,7 +29,9 @@ const float removePixelRatio = 0.4f;// p (paper) - How many percent of edges to 
 const int kTpl = 4;					// k (paper) - How many templates are compared to current to remove non stable edges
 const int thetaV = 3;				// How many triplets must have same template index to keep it as candidate
 const float minEdgesRatio = 0.95;	// Min edges to keep candidate (minEdgesRatio * minEdges)
-const int minBGColorThreshold = 37; // t_b (papžer) -  Minimal uchar value on background in loaded templates 
+const int minBGColorThreshold = 37; // t_b (paper) -  Minimal uchar value on background in loaded templates 
+const int minQuadrantEdges = 10;	// e_r
+const float minChamferScore = 0.5; // t_c
 
 // Triplets
 const int tripletsAmount = 50; // L

@@ -13,6 +13,8 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 
 void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &candidates, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, int minEdges, float sceneScaleRatio);
 
+DetectionUnit getDetectionUnitByROIWithQuadCount(cv::Mat &img_8u, cv::Mat &edges_8u, int x, int y, int roiSize, int minEdges, int &q1, int &q2, int &q3, int &q4);
+
 Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, cv::Mat &edges_8u, int x, int y, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, int minEdges, float sceneScaleRatio);
 
 int solveBinarySlacification(Candidate &candidate, std::vector<GroundTruth> &grounTruth, F1Score &f1score);

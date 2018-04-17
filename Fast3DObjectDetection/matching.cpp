@@ -172,40 +172,53 @@ void matchInImageWithSlidingWindow(cv::Mat &scene_8u, std::vector<Candidate> &ca
 	}
 }
 
-Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, cv::Mat &edges_8u, int x, int y, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, int minEdges, float sceneScaleRatio) {
-	DetectionUnit unit = getDetectionUnitByROI(scene_8u, edges_8u, x, y, slidingWindowSize);
-	if (unit.edgesCount < minEdges) {
-		return Candidate();
-	}
-	int q1 = 0, q2 = 0, q3 = 0, q4 = 0;
-	for (int x = 0; x < unit.edges_8u.cols; x++)
+DetectionUnit getDetectionUnitByROIWithQuadCount(cv::Mat &img_8u, cv::Mat &edges_8u, int x, int y, int roiSize, int minEdges, int &q1, int &q2, int &q3, int &q4) {
+	DetectionUnit unit{};
+	unit.edgesCount = 0;
+
+	int quadMiddle = roiSize / 2;
+	q1 = q2 = q3 = q4 = 0;
+	for (int roiX = x; roiX < x + roiSize; roiX++)
 	{
-		for (int y = 0; y < unit.edges_8u.rows; y++)
+		for (int roiY = y; roiY < y + roiSize; roiY++)
 		{
-			if (unit.edges_8u.at<uchar>(y, x) == 0) {
-				if (x < 24) {
-					if (y < 24) { q1++; }
+			if (edges_8u.at<uchar>(roiY, roiX) == 0) {
+				if (roiX < x + quadMiddle) {
+					if (roiY < y + quadMiddle) { q1++; }
 					else { q2++; }
 				}
 				else
 				{
-					if (y < 24) { q3++; }
+					if (roiY < y + quadMiddle) { q3++; }
 					else { q4++; }
 				}
 			}
 		}
 	}
-	int minQEdges = 10;
-	if (q1 < minQEdges || q2 < minQEdges || q3 < minQEdges || q4 < minQEdges) {
-		int lessQEdges = 0;
-		if (q1 < minQEdges) { lessQEdges++; }
-		if (q2 < minQEdges) { lessQEdges++; }
-		if (q3 < minQEdges) { lessQEdges++; }
-		if (q4 < minQEdges) { lessQEdges++; }
-		if (lessQEdges > 1)
-		{
-			return Candidate();
-		}
+	int edgesCount = q1 + q2 + q3 + q4;
+	int lessQEdges = 0;
+	if (q1 < minQuadrantEdges) { lessQEdges++; }
+	if (q2 < minQuadrantEdges) { lessQEdges++; }
+	if (q3 < minQuadrantEdges) { lessQEdges++; }
+	if (q4 < minQuadrantEdges) { lessQEdges++; }
+
+	if (lessQEdges > 1 || edgesCount < minEdges)
+	{
+		return unit;
+	}
+
+	unit.edgesCount = edgesCount;
+	unit.img_8u = img_8u(cv::Rect(x, y, roiSize, roiSize));
+	unit.edges_8u = edges_8u(cv::Rect(x, y, roiSize, roiSize));
+	prepareDetectionUnit(unit, false, false, true);
+	return unit;
+}
+
+Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, cv::Mat &edges_8u, int x, int y, FolderTemplateList &templates, HashSettings &hashSettings, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, float averageEdges, int minEdges, float sceneScaleRatio) {
+	int q1 = 0, q2 = 0, q3 = 0, q4 = 0;
+	DetectionUnit unit = getDetectionUnitByROIWithQuadCount(scene_8u, edges_8u, x, y, slidingWindowSize, minEdges, q1, q2, q3, q4);
+	if (unit.edgesCount == 0) {
+		return Candidate();
 	}
 
 	std::unordered_map<TemplateIndex, int> candidatesCount;
@@ -232,7 +245,7 @@ Candidate computeMatchInSlidingWindow(cv::Mat &scene_8u, cv::Mat &edges_8u, int 
 		}
 	}
 
-	if (moreTimesThanThetaV > 0 && bestChamferScore > 0.5) {
+	if (moreTimesThanThetaV > 0 && bestChamferScore > minChamferScore) {
 		//std::printf("Total candidates %4d - more than 3: %2d, best score: %4.5f\n", candidatesCount.size(), moreTimesThanThetaV, bestChamferScore);
 		return Candidate(
 			x * sceneScaleRatio,
@@ -257,24 +270,15 @@ int solveBinarySlacification(Candidate &candidate, std::vector<GroundTruth> &gro
 			if (candidate.folderIndex == grounTruth[i].folderIndex)
 			{
 				f1score.truePositive++;
-				/*std::fstream log("tp.csv", std::fstream::app);
-				log << candidate.chamferScore << "\n";
-				log.close();*/
 			}
 			else {
 				f1score.falseNegative++;
-				/*std::fstream log("fn.csv", std::fstream::app);
-				log << candidate.chamferScore << "\n";
-				log.close();*/
 			}
 			grounTruth[i].active = false;
 			return i;
 		}
 	}
 	f1score.falsePositive++;
-	/*std::fstream log("fp.csv", std::fstream::app);
-	log << candidate.chamferScore << "\n";
-	log.close();*/
 	return -1;
 }
 

@@ -18,8 +18,6 @@ void thresholdToValue(cv::Mat &dst_8u, uchar noUnderThreshold);
 
 int loadAllTemplates(FolderTemplateList &templates);
 
-DetectionUnit getDetectionUnitByROI(cv::Mat &img_8u, cv::Mat &edges_8u, int x, int y, int roiSize);
-
 cv::Mat loadTestImage_8u(int imageIndex);
 void loadGroundTruthData(std::vector<GroundTruth> &groundTruth, int imageIndex);
 
