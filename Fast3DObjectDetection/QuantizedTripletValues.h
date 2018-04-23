@@ -47,17 +47,3 @@ namespace std {
 		}
 	};
 }
-
-//inline QuantizedTripletValues unhash(std::size_t hashedValue) {
-//	QuantizedTripletValues qtz(
-//		hashedValue >> 18,
-//		(hashedValue >> 15) & 0b111,
-//		(hashedValue >> 12) & 0b111,
-//		(hashedValue >> 9) & 0b111,
-//		(hashedValue >> 6) & 0b111,
-//		(hashedValue >> 3) & 0b111,
-//		(hashedValue >> 0) & 0b111
-//	);
-//	return qtz;
-//}
-

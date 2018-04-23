@@ -5,8 +5,6 @@
 
 cv::Mat removeDiscriminatePoints_8u(cv::Mat &src_8u, cv::Mat &edge_8u);
 
-int selectingByEdgeOrientations();
-
 cv::Mat removeNonStablePoints_8u(DetectionUnit &srcTemplate, std::vector<DetectionUnit> &simmilarTemplates);
 
 void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdges);

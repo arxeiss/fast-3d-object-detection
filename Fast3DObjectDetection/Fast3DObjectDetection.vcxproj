@@ -128,7 +128,6 @@
     <ClInclude Include="hopscotch_map.h" />
     <ClInclude Include="loading.h" />
     <ClInclude Include="matching.h" />
-    <ClInclude Include="sparseDescriptor.h" />
     <ClInclude Include="QuantizedTripletValues.h" />
     <ClInclude Include="TemplateChamferScore.h" />
     <ClInclude Include="TemplateIndex.h" />
@@ -145,7 +144,6 @@
     <ClCompile Include="Fast3DObjectDetection.cpp" />
     <ClCompile Include="loading.cpp" />
     <ClCompile Include="matching.cpp" />
-    <ClCompile Include="sparseDescriptor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

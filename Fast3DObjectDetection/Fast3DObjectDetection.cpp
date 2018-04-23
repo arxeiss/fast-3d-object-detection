@@ -32,15 +32,6 @@
 #include "matching.h"
 #include "visualize.h"
 
-/*
-NOTES:
- - nejlepsi vysledky dist binu = 1.369293, 3.279279, 6.558594
- - prumerny pocet hran je pocitany vuci templatum stejneho objektu - pocitat vuci vsem templatum?
- - prumerny pocet hran pro detekci spocitat uz z vyfiltrovanych sablon, nebo z puvodnich pred odebrani hran?
- - Chamfer score pociat z odfiltrovane sablony proti sliding window - mene hran, rychlejsi beh
-*/
-
-
 void prepareAndSaveData() {
 	srand(time(0));
 	TimeMeasuring elapsedTime(true);
@@ -50,47 +41,7 @@ void prepareAndSaveData() {
 	elapsedTime.insertBreakpoint("tplLoaded");
 	std::printf("%d templates loaded in: %d [ms]\n", templatesLoaded, elapsedTime.getTimeFromBeginning());
 
-	std::printf("\n\n\n\n");
-	int minOtherQEdges = 3000;
-	for (int f = 0; f < templates.size(); f++)
-	{
-		for (int t = 0; t < templates[f].size(); t++)
-		{
-			int q1 = 0, q2 = 0, q3 = 0, q4 = 0;
-			for (int x = 0; x < templates[f][t].edges_8u.cols; x++)
-			{
-				for (int y = 0; y < templates[f][t].edges_8u.rows; y++)
-				{
-					if (templates[f][t].edges_8u.at<uchar>(y, x) == 0) {
-						if (x < 24) {
-							if (y < 24) { q1++; }
-							else { q2++; }
-						}
-						else
-						{
-							if (y < 24) { q3++; }
-							else { q4++; }
-						}
-					}
-				}
-			}
-			int minQEdges = 8;
-			if (q1 < minQEdges || q2 < minQEdges || q3 < minQEdges || q4 < minQEdges) {
-				int lessQEdges = 0;
-				if (q1 < minQEdges) { lessQEdges++; }
-				if (q2 < minQEdges) { lessQEdges++; }
-				if (q3 < minQEdges) { lessQEdges++; }
-				if (q4 < minQEdges) { lessQEdges++; }
-				if (lessQEdges > 1)
-				{
-					std::printf("TPL %d / %4d Zeros: %d   =   (Q1-4 = %2d - %2d - %2d - %2d)\n", f, t, lessQEdges, q1, q2, q3, q4);
-				}
-			}
-		}
-	}
-
 	float averageEdges = countAverageEdgesAcrossTemplates(templates);
-	std::printf("Average edges: %f - Min edges: %d\n", averageEdges);
 	//showChamferScore(templates[0][0], templates[0][1], averageEdges);
 	std::vector<Triplet> triplets = generateTriplets();
 	elapsedTime.insertBreakpoint("genTriplets");
@@ -111,8 +62,6 @@ void prepareAndSaveData() {
 	}
 	std::printf("Max size: %d\n\n", maxSize);
 
-	// paralel je jiz uvnitr funkce filterTemplateEdges
-	// #pragma omp parallel for
 	for (int f = 0; f < templates.size(); f++)
 	{
 		std::printf("Start %d - ", f);
@@ -131,14 +80,6 @@ void prepareAndSaveData() {
 
 	elapsedTime.insertBreakpoint("fileSaving");
 	std::printf("File saved in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("filterEdges"), elapsedTime.getTimeFromBeginning());
-
-	/*FolderTemplateList templates;
-	std::vector<Triplet> triplets;
-	TemplateHashTable hashTable;
-	HashSettings hashSettingsLoad = loadPreparedData("preparedData.bin", templates, triplets, hashTable);
-	elapsedTime.insertBreakpoint("fileLoading");
-	std::printf("File loaded in: %d [ms] (total time: %d [ms])\n", elapsedTime.getTimeFromBreakpoint("fileSaving"), elapsedTime.getTimeFromBeginning());
-	savePreparedData("preparedData2.bin", templates, triplets);*/
 
 	std::printf("Total time: %d [ms]\n", elapsedTime.getTimeFromBeginning());
 }
@@ -217,12 +158,4 @@ int main()
 	cv::destroyAllWindows();
 	std::getc(stdin);
 	return 0;
-	
-	//return testDetectedEdgesAndDistanceTransform();
-
-	//return filterTemplateEdges();
-	//return selectingByStabilityToViewpoint();
-	//return selectingByEdgeOrientations();
-
-    return 0;
 }

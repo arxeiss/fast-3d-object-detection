@@ -5,7 +5,6 @@
 #include "distanceAndOrientation.h"
 #include "chamferScore.h"
 #include "loading.h"
-//#include "visualize.h"
 
 cv::Mat removeDiscriminatePoints_8u(cv::Mat &src_8u, cv::Mat &edge_8u) {
 	cv::Mat filtered_8u;
@@ -45,11 +44,6 @@ cv::Mat removeDiscriminatePoints_8u(cv::Mat &src_8u, cv::Mat &edge_8u) {
 		}
 	}
 
-	/*for (int f = 0; f < histogramBins; f++)
-	{
-	std::printf("%d: %d\n", f, histogram[f].size());
-	}*/
-
 	for (int rm = 0; rm < removeBins; rm++) {
 		int maxBinI = 0, maxBinCnt = 0;
 		for (int i = 0; i < histogramBins; i++)
@@ -60,8 +54,6 @@ cv::Mat removeDiscriminatePoints_8u(cv::Mat &src_8u, cv::Mat &edge_8u) {
 				maxBinI = i;
 			}
 		}
-
-		//printf("Remove %d. bin\n", maxBinI);
 
 		int pixelsToRemove = ((float)histogram[maxBinI].size()) * removePixelRatio;
 		std::random_shuffle(histogram[maxBinI].begin(), histogram[maxBinI].end());
@@ -77,21 +69,7 @@ cv::Mat removeDiscriminatePoints_8u(cv::Mat &src_8u, cv::Mat &edge_8u) {
 	return filtered_8u;
 
 }
-/// TEST func - edges + distance transform;
-int selectingByEdgeOrientations() {
-	cv::Mat hand_8u = cv::imread("images/hand.png", CV_LOAD_IMAGE_GRAYSCALE);
-	printMatType(hand_8u);
 
-	cv::Mat handEdge_8u = getDetectedEdges_8u(hand_8u);
-	cv::Mat handEdgeFiltered = removeDiscriminatePoints_8u(hand_8u, handEdge_8u);
-
-	//cv::imshow("hand", hand);
-	cv::imshow("hand_edge", handEdge_8u);
-	cv::imshow("hand_edge_filtered", handEdgeFiltered);
-
-	cv::waitKey(0);
-	return 0;
-}
 
 cv::Mat removeNonStablePoints_8u(DetectionUnit &srcTemplate, std::vector<DetectionUnit> &simmilarTemplates) {
 	int kTpl = simmilarTemplates.size();
@@ -163,7 +141,6 @@ void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdg
 		}
 		cv::waitKey();*/
 
-
 		std::vector<DetectionUnit> simmilarTemplates(kTpl);
 		for (int i = 0; i < kTpl; i++)
 		{
@@ -172,17 +149,6 @@ void filterTemplateEdges(std::vector<DetectionUnit> &templates, float averageEdg
 		cv::Mat nonStableEdges = removeNonStablePoints_8u(templates[t], simmilarTemplates);
 		removedEdges[t] = removeDiscriminatePoints_8u(templates[t].img_8u, nonStableEdges);
 
-		/*showResized("srcEdges", templates[t].edges_8u, 3);
-		cv::Mat nonStableEdges = removeNonStablePoints_8u(templates[t], simmilarTemplates);
-		showResized("non stable", nonStableEdges, 3);
-		removedEdges[t] = removeDiscriminatePoints_8u(templates[t].img_8u, nonStableEdges, removePixelRatio);
-		showResized("discrimintaive", removeDiscriminatePoints_8u(templates[t].img_8u, templates[t].edges_8u, removePixelRatio), 3);
-		showResized("total", removedEdges[t], 3);
-		cv::waitKey(0);*/
-		/*if (t % 10 == 0)
-		{
-		std::printf("Filtered %d / %d templates\r", t, templates.size());
-		}*/
 	}
 #pragma omp parallel for
 	for (int t = 0; t < templates.size(); t++) {

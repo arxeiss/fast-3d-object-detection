@@ -194,7 +194,6 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 	std::vector<float> distances = std::vector<float>(tripletsValues.size() * 3);
 	std::printf("TripletsValues - %d, distances - %d\n", tripletsValues.size(), distances.size());
 
-	//std::map<float, int> dstTest;
 	TimeMeasuring tm(true);
 	int templateTripletValI = 0;
 	int distancesI = 0;
@@ -212,10 +211,6 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 				distances[distancesI++] = trpVal.d1;
 				distances[distancesI++] = trpVal.d2;
 				distances[distancesI++] = trpVal.d3;
-
-				//dstTest[trpVal.d1]++;
-				//dstTest[trpVal.d2]++;
-				//dstTest[trpVal.d3]++;
 
 				float tripletMinD = trpVal.minDistance(),
 					tripletMaxD = trpVal.maxDistance(),
@@ -265,16 +260,6 @@ void countTripletsValues(std::vector<TripletValues> &tripletsValues, FolderTempl
 	if (maxD != NULL) { *maxD = maxDTmp; }
 	if (minPhi != NULL) { *minPhi = minPhiTmp; }
 	if (maxPhi != NULL) { *maxPhi = maxPhiTmp; }
-
-	/*std::printf("Unique dsts:\n");
-	int i = 1;
-	for (std::map<float, int>::iterator it = dstTest.begin(); it != dstTest.end(); ++it, i++) {
-		std::printf("%6.3f - %6dx\t", it->first, it->second);
-		if (i % 3 == 0)
-		{
-			std::printf("\n");
-		}
-	}*/
 
 }
 
@@ -399,8 +384,6 @@ void savePreparedData(std::string fileName, FolderTemplateList &templates, std::
 	ofs.close();
 }
 // https://github.com/takmin/BinaryCvMat/blob/master/BinaryCvMat.cpp
-// http://pythonopencv.com/step-by-step-install-opencv-3-3-with-visual-studio-2015-on-windows-10-x64-2017-diy/
-// http://pythonopencv.com/easy-fast-pre-compiled-opencv-libraries-and-headers-for-3-2-with-visual-studio-2015-x64-windows-10-support/
 bool loadPreparedData(std::string fileName, FolderTemplateList &templates, std::vector<Triplet> &triplets, TemplateHashTable &hashTable, HashSettings &hashSettings, int &minEdges) {
 	std::ifstream ifsData(fileName, std::ios::binary);
 

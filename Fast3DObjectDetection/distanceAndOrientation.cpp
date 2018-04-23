@@ -3,7 +3,6 @@
 
 #include <iomanip>
 
-// --------- edges + distance transform -----------
 cv::Mat getDetectedEdges_8u(cv::Mat &src_8u) {
 	cv::Mat detected_edges_8u, dst;
 
@@ -11,7 +10,7 @@ cv::Mat getDetectedEdges_8u(cv::Mat &src_8u) {
 	// Canny detector - need 8U matrix
 	cv::Canny(src_8u, detected_edges_8u, canny_LowThreshold, canny_LowThreshold*canny_Ratio, canny_KernelSize);
 
-	/// Using Canny's output as a mask, we display our result
+	// Using Canny's output as a mask, we display our result
 	// Clear img
 	dst = cv::Mat(src_8u.size(), CV_8UC1);
 	dst = cv::Scalar(255);
@@ -38,7 +37,6 @@ cv::Mat getDistanceTransform_32f(cv::Mat &src_8u) {
 	return distTransform_32f;
 }
 
-// --------- edge distance and orientation -----------
 float getEdgeOrientation(cv::Mat &srcGray_8u, int x, int y, bool onlyPositive) {
 	int xStart = (x == 0 ? 1 : 0), // If edge is calculating - skip part of mask
 		xEnd = (x == srcGray_8u.cols - 1) ? 2 : 3, // If is edge on end of picture
@@ -51,7 +49,6 @@ float getEdgeOrientation(cv::Mat &srcGray_8u, int x, int y, bool onlyPositive) {
 	{
 		for (int mY = yStart; mY < yEnd; mY++)
 		{
-			//float cVal = getPixelAsfloat(srcGray_8u, x + mX - 1, y + mY - 1);
 			float cVal = ((float)srcGray_8u.at<uchar>(y + mY - 1, x + mX - 1)) / 255.0f;
 			sXVal += cVal * xDerivMask.at<float>(mY, mX);
 			sYVal += cVal * yDerivMask.at<float>(mY, mX);

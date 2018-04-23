@@ -184,7 +184,6 @@ inline void showChamferScore(DetectionUnit &srcTemplate, DetectionUnit &comparin
 	cv::waitKey();
 }
 
-/// TEST func
 inline int visualizeTriplets(std::vector<Triplet> &triplets, int edgeOffset, int pointsDistance, int imageColsRows, int scaleRatio = 10, int wait = 100)
 {
 	cv::Mat netRaw, netSingle, netAll;
@@ -236,7 +235,6 @@ inline int visualizeTriplets(std::vector<Triplet> &triplets, int edgeOffset, int
 	return 0;
 }
 
-/// TEST func
 inline cv::Mat visualizeTripletOnEdges(DetectionUnit &unit, Triplet &triplet, TripletValues *tripletValues = NULL, bool showText = true, int wait = 0) {
 	int scaleRatio = 5;
 	cv::Mat show;
@@ -297,75 +295,3 @@ inline cv::Mat visualizeTripletOnEdges(DetectionUnit &unit, Triplet &triplet, Tr
 	cv::waitKey(wait);
 	return show;
 }
-
-/// TEST func - potrebuje ty 2 vyse
-inline int testDetectedEdgesAndDistanceTransform() {
-	cv::Mat rect_8u = cv::imread("images/rect.png", CV_LOAD_IMAGE_GRAYSCALE);
-	cv::Mat dstTransform = getDistanceTransform_32f(rect_8u), dstTransformNorm;
-
-	cv::normalize(dstTransform, dstTransformNorm, 0.0f, 1.0f, cv::NORM_MINMAX);
-
-	for (int x = 5; x < dstTransform.cols; x += 30)
-	{
-		for (int y = 5; y < dstTransform.rows; y += 20)
-		{
-			std::stringstream ss;
-			ss << std::fixed << std::setprecision(1) << dstTransform.at<float>(y, x);
-			cv::circle(dstTransform, cv::Point(x, y), 1, cv::Scalar(0.5));
-			cv::circle(dstTransformNorm, cv::Point(x, y), 1, cv::Scalar(0.5));
-			cv::putText(dstTransform, ss.str(), cv::Point(x + 2, y), CV_AA, 0.3, cv::Scalar(0.5));
-		}
-	}
-	int x = 11, y = 15;
-	std::stringstream ss;
-	ss << std::fixed << std::setprecision(10) << dstTransform.at<float>(y, x);
-	cv::circle(dstTransform, cv::Point(x, y), 3, cv::Scalar(0.5));
-	cv::circle(dstTransformNorm, cv::Point(x, y), 3, cv::Scalar(0.5));
-	cv::putText(dstTransform, ss.str(), cv::Point(x + 2, y), CV_AA, 0.5, cv::Scalar(0.5));
-
-	cv::imshow("distTransform", dstTransform);
-	cv::imshow("distTransformNorm", dstTransformNorm);
-	cv::waitKey(0);
-	return 1;
-}
-
-//inline void showEdgeOrientations(cv::Mat src_8u, cv::Mat edge_8u, bool fromDistanceTransform = false, std::string windowName = "Orientations") {
-//	cv::Mat edgeWithOri, distanceTransform_32f;
-//	cv::cvtColor(edge_8u, edgeWithOri, CV_GRAY2BGR);
-//
-//	if (fromDistanceTransform) {
-//		distanceTransform_32f = getDistanceTransformFromEdges_32f(edge_8u);
-//	}
-//
-//	bool onlyPositive = false;
-//
-//	for (int y = 5; y < edge_8u.rows; y += 5)
-//	{
-//		for (int x = 0; x < edge_8u.cols; x++)
-//		{
-//			if (edge_8u.at<uchar>(y, x) > 0)
-//			{
-//				continue;
-//			}
-//			//cv::circle(edgeWithOri, cv::Point(x, y), 1, cv::Scalar(1));
-//			if (fromDistanceTransform)
-//			{
-//				int offsetX = x - 6, offsetY = y - 6;
-//				float angle = getEdgeOrientationFromDistanceTransform(distanceTransform_32f, offsetX, offsetY, onlyPositive);
-//				int dX = offsetX - round(cos(angle) * 6);
-//				int dY = offsetY - round(sin(angle) * 6);
-//				cv::line(edgeWithOri, cv::Point(offsetX, offsetY), cv::Point(dX, dY), cv::Scalar(0, 0, 255));
-//				cv::circle(edgeWithOri, cv::Point(offsetX, offsetY), 1, cv::Scalar(255, 0, 0), -1);
-//			}
-//			else {
-//				float angle = getEdgeOrientation(src_8u, x, y, onlyPositive);
-//				int dX = x - round(cos(angle) * 6);
-//				int dY = y - round(sin(angle) * 6);
-//				cv::line(edgeWithOri, cv::Point(x, y), cv::Point(dX, dY), cv::Scalar(0, 0, 255));
-//			}
-//			x += 4;
-//		}
-//	}
-//
-//	cv::imshow(windowName, edgeWithOri);
-//}

@@ -12,17 +12,6 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 	
 	cv::Mat toDraw;
 
-	std::fstream timeData("matchInImage-time.log", std::fstream::out | std::fstream::app);
-	if (timeData.is_open()) {
-		if (testIndex == 1)
-		{
-			timeData << "i,s9,s8,s7,s6,s5,s4,s3,s2,s1,s0,NMS[us],windows,winAfterNms|f1score,tp,fp,fn\n";
-		}
-		timeData << testIndex << ",";
-	} else {
-		std::printf("!!! - Error, cannot open a file for writing !!!\n");
-	}
-
 	TimeMeasuring tm;
 	tm.startMeasuring();
 
@@ -35,7 +24,6 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 	testImg_8u.copyTo(sizedScene);
 	blurImage(sizedScene);
 
-	//for (int i = scalePyramidSteps - 1; i >= 0; i--)
 	for (int i = 0; i < scalePyramidSteps; i++)
 	{
 		
@@ -48,9 +36,6 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 		{
 			cv::resize(sizedScene, sizedScene, cv::Size(round(sizedScene.cols / scalePyramidResizeRatio), round(sizedScene.rows / scalePyramidResizeRatio)));
 		}
-		//cv::Mat canny = getDetectedEdges_8u(sizedScene);
-		//cv::imshow("Canny", canny);
-		//cv::waitKey();
 		long long int ms = tm.getTimeFromBeginning();
 		printf(" => in %d [ms]\n", ms);
 		/*testImg_8u.copyTo(toDraw);
@@ -60,9 +45,6 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 		}
 		cv::imshow("Possible candidates", toDraw);
 		cv::waitKey();*/
-		if (timeData.is_open()) {
-			timeData << ms << ",";
-		}
 	}
 	std::printf("\nTotal matching time: %d [ms]\n", tm.getTimeFromBeginning());
 	if (!disableVisualisation)
@@ -80,9 +62,6 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 	std::sort(candidates.begin(), candidates.end());
 	nonMaximaSupression(candidates);
 	long long int us = tm.getTimeFromBreakpoint("nms", true);
-	if (timeData.is_open()) {
-		timeData << us << ",";
-	}
 	std::printf("NMS time: %d [us]\n", us);
 
 	F1Score imageScore;
@@ -135,11 +114,6 @@ F1Score matchInImage(int testIndex, cv::Mat &testImg_8u, FolderTemplateList &tem
 	}
 
 	std::printf("Total windows after NMS: %d\n", windows);
-	if (timeData.is_open()) {
-		timeData << candidates.size() << "," << windows << "|" << imageScore.getF1Score(true) << ","
-			<< imageScore.truePositive << "," << imageScore.falsePositive << "," << imageScore.falseNegative << "\n";
-		timeData.close();
-	}
 
 	std::printf("# F1 %2.3f (Precision %1.4f / Recal: %1.4f) - TP: %2d, FP: %2d, FN: %2d\n",
 		imageScore.getF1Score(true), imageScore.getPrecision(), imageScore.getRecall(),
